@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   EvaThemeProvider,
   HexDashboard,
@@ -8,27 +8,45 @@ import {
   HudAlert,
   HudTooltip,
   MagiPanel,
+  MagiConsole,
   WarningHex,
   CountdownTimer,
   HazardStripes,
   ScanlineOverlay,
 } from 'eva-ui';
 
-import { testSuites, metrics, recentResults, flakyTests } from './data/mockData';
+import { testSuites, metrics, recentResults, flakyTests, activityLog } from './data/mockData';
 import type { TestSuite, TestResult } from './data/mockData';
 import { TestSuiteCell } from './components/TestSuiteCell';
 import { MetricCell } from './components/MetricCell';
 import { ResultCell } from './components/ResultCell';
 import { SuiteModal } from './components/SuiteModal';
 import { ActivityDrawer } from './components/ActivityDrawer';
+import { ActivityFeedCell } from './components/ActivityFeedCell';
 
 type NavItem = 'dashboard' | 'suites' | 'runs' | 'reports' | 'settings';
+
+function useClock() {
+  const [time, setTime] = useState(() => {
+    const d = new Date();
+    return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  });
+  useEffect(() => {
+    const id = setInterval(() => {
+      const d = new Date();
+      setTime(d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
 
 export default function App() {
   const [activeNav, setActiveNav] = useState<NavItem>('dashboard');
   const [modalSuite, setModalSuite] = useState<TestSuite | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [alertVisible, setAlertVisible] = useState(true);
+  const clock = useClock();
 
   const handleSuiteClick = useCallback((suite: TestSuite) => {
     setModalSuite(suite);
@@ -48,39 +66,44 @@ export default function App() {
           gap={4}
           gapDistribution="left"
           gapDistributionVertical="top"
+          atmosphere
           zones={{
             top: (
-              <HudHeader>
+              <HudHeader scanlines>
                 <HudHeader.Title subtitle="テスト司令センター">
                   TEST COMMAND CENTER
                 </HudHeader.Title>
                 <HudHeader.Status>
+                  <span style={{ marginRight: '1.5rem', fontVariantNumeric: 'tabular-nums' }}>
+                    <span style={{ opacity: 0.4, marginRight: '0.5rem', fontSize: '0.65rem' }}>CLOCK</span>
+                    <span style={{ fontWeight: 700, letterSpacing: '0.08em' }}>{clock}</span>
+                  </span>
                   <span style={{ marginRight: '1.5rem' }}>
-                    <span style={{ opacity: 0.5, marginRight: '0.5rem' }}>PASS RATE</span>
+                    <span style={{ opacity: 0.4, marginRight: '0.5rem', fontSize: '0.65rem' }}>PASS RATE</span>
                     <span style={{ color: 'var(--eva-hex-active, #0f0)', fontWeight: 700 }}>{metrics.passRate}%</span>
                   </span>
                   <span>
-                    <span style={{ opacity: 0.5, marginRight: '0.5rem' }}>TESTS</span>
+                    <span style={{ opacity: 0.4, marginRight: '0.5rem', fontSize: '0.65rem' }}>TESTS</span>
                     <span style={{ fontWeight: 700 }}>{metrics.totalTests}</span>
                   </span>
                 </HudHeader.Status>
               </HudHeader>
             ),
             left: (
-              <HudSidebar position="left" hazardAccent>
+              <HudSidebar position="left" hazardAccent scanlines>
                 <HudSidebar.Logo>EVA-QA</HudSidebar.Logo>
                 <HudSidebar.Nav>
                   <HudSidebar.NavItem label="Dashboard" active={activeNav === 'dashboard'} onClick={() => setActiveNav('dashboard')} />
                   <HudSidebar.NavItem label="Test Suites" active={activeNav === 'suites'} onClick={() => setActiveNav('suites')} />
                   <HudSidebar.NavItem label="Test Runs" active={activeNav === 'runs'} onClick={() => setActiveNav('runs')} />
+                  <HudSidebar.Section label="Analysis" />
                   <HudSidebar.NavItem label="Reports" active={activeNav === 'reports'} onClick={() => setActiveNav('reports')} />
                   <HudSidebar.Section label="System" />
                   <HudSidebar.NavItem label="Settings" active={activeNav === 'settings'} onClick={() => setActiveNav('settings')} />
                 </HudSidebar.Nav>
                 <HudSidebar.Footer>
-                  <div style={{ fontSize: '0.6rem', opacity: 0.3, textAlign: 'center' }}>
-                    RUN #{metrics.totalRuns}
-                    <br />
+                  <div style={{ fontSize: '0.55rem', opacity: 0.3, textAlign: 'center', lineHeight: 1.6 }}>
+                    RUN #{metrics.totalRuns}<br />
                     v2.4.1
                   </div>
                 </HudSidebar.Footer>
@@ -99,7 +122,7 @@ export default function App() {
             ) : null,
           }}
         >
-          {/* Row 0: Three test suite cells (large) styled as MagiPanels */}
+          {/* ═══ ROW 0: Test Suite Cells (large) ═══ */}
           <HexCell col={0} row={0} size="lg" state="active" interactive onClick={() => handleSuiteClick(testSuites[0])}>
             <HudTooltip content={<span>API Tests — {testSuites[0].passed}/{testSuites[0].total} passing<br/>Duration: {testSuites[0].duration}</span>}>
               <div style={{ width: '100%', height: '100%' }}>
@@ -117,32 +140,45 @@ export default function App() {
           </HexCell>
 
           <HexCell col={4} row={0} size="lg" state="warning" interactive onClick={() => handleSuiteClick(testSuites[2])}>
-            <HudTooltip content={<span>Integration Tests — {testSuites[2].passed}/{testSuites[2].total} passing<br/>Duration: {testSuites[2].duration}</span>}>
+            <HudTooltip content={<span>Integration — {testSuites[2].passed}/{testSuites[2].total} passing<br/>Duration: {testSuites[2].duration}</span>}>
               <div style={{ width: '100%', height: '100%' }}>
                 <TestSuiteCell suite={testSuites[2]} onClick={handleSuiteClick} />
               </div>
             </HudTooltip>
           </HexCell>
 
-          {/* Row 2: Metric cells (medium) */}
+          {/* ═══ ROW 2: Metric Cells (medium) ═══ */}
           <HexCell col={0} row={2} size="md">
-            <HudTooltip content="Total across all 3 suites">
+            <HudTooltip content={`Target: ${metrics.totalTarget} tests`}>
               <div style={{ width: '100%', height: '100%' }}>
-                <MetricCell label="TOTAL TESTS" labelJa="テスト総数" value={metrics.totalTests} accent="default" />
+                <MetricCell
+                  label="TOTAL TESTS"
+                  labelJa="テスト総数"
+                  value={metrics.totalTests}
+                  accent="default"
+                  progress={(metrics.totalTests / metrics.totalTarget) * 100}
+                />
               </div>
             </HudTooltip>
           </HexCell>
 
           <HexCell col={1} row={2} size="md">
-            <HudTooltip content="Percentage of tests passing across all suites">
+            <HudTooltip content={`Target: ${metrics.passTarget}%`}>
               <div style={{ width: '100%', height: '100%' }}>
-                <MetricCell label="PASS RATE" labelJa="合格率" value={metrics.passRate} unit="%" accent="success" />
+                <MetricCell
+                  label="PASS RATE"
+                  labelJa="合格率"
+                  value={metrics.passRate}
+                  unit="%"
+                  accent="success"
+                  progress={(metrics.passRate / metrics.passTarget) * 100}
+                />
               </div>
             </HudTooltip>
           </HexCell>
 
           <HexCell col={2} row={2} size="md">
-            <HudTooltip content="Average test suite execution time">
+            <HudTooltip content={`Target: ${metrics.durationTarget}`}>
               <div style={{ width: '100%', height: '100%' }}>
                 <MetricCell label="AVG DURATION" labelJa="平均時間" value={metrics.avgDuration} accent="default" />
               </div>
@@ -165,36 +201,62 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          {/* Row 3: Recent results (small cells) */}
-          {recentResults.slice(0, 5).map((result, i) => (
+          {/* ═══ ROW 3: Recent results (small) + WarningHex ═══ */}
+          {recentResults.slice(0, 4).map((result, i) => (
             <HexCell key={result.id} col={i} row={3} size="sm" interactive onClick={() => handleResultClick(result)}>
               <ResultCell result={result} onClick={handleResultClick} />
             </HexCell>
           ))}
 
-          {/* Row 4: MAGI panels + Warning + Countdown */}
+          <HexCell col={4} row={3} size="md" state="warning">
+            <WarningHex level="warning" label="FAILURES" labelJa="失敗数">
+              <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{metrics.failedTests}</div>
+            </WarningHex>
+          </HexCell>
+
+          {/* ═══ ROW 4: MAGI Voting Section ═══ */}
           <HexCell col={0} row={4} size="lg">
-            <MagiPanel
-              system="melchior"
-              vote="approve"
-              syncRate={94.7}
-              label="API SUITE"
-            />
+            <MagiPanel system="melchior" vote="approve" syncRate={94.7} label="AUTH SUITE" />
           </HexCell>
 
-          <HexCell col={2} row={4} size="md" state="warning">
-            <WarningHex level="warning" label="INTEGRATION" labelJa="統合テスト">
-              <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>10</div>
-            </WarningHex>
-          </HexCell>
-
-          <HexCell col={3} row={4} size="md">
-            <WarningHex level="caution" label="FLAKY" labelJa="不安定">
-              <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>3</div>
-            </WarningHex>
+          <HexCell col={2} row={4} size="lg">
+            <MagiPanel system="balthasar" vote="approve" syncRate={93.7} label="UI SUITE" />
           </HexCell>
 
           <HexCell col={4} row={4} size="lg">
+            <MagiPanel system="caspar" vote="deny" syncRate={67.2} label="INTEG SUITE" />
+          </HexCell>
+
+          {/* ═══ ROW 6: MAGI Console Aggregate + Activity Feed ═══ */}
+          <HexCell col={0} row={6} size="lg">
+            <MagiConsole
+              votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
+              syncRates={{ melchior: 94.7, balthasar: 93.7, caspar: 67.2 }}
+              title="BUILD VERDICT"
+              titleJa="ビルド判定"
+            />
+          </HexCell>
+
+          <HexCell col={2} row={6} size="lg">
+            <div className="activity-feed-wrapper">
+              <ActivityFeedCell entries={activityLog} />
+            </div>
+          </HexCell>
+
+          <HexCell col={4} row={6} size="lg">
+            <div className="activity-feed-wrapper">
+              <ActivityFeedCell entries={[...activityLog].reverse()} />
+            </div>
+          </HexCell>
+
+          {/* ═══ ROW 8: More results + Countdown + Activity trigger ═══ */}
+          {recentResults.slice(4).map((result, i) => (
+            <HexCell key={result.id} col={i} row={8} size="sm" interactive onClick={() => handleResultClick(result)}>
+              <ResultCell result={result} onClick={handleResultClick} />
+            </HexCell>
+          ))}
+
+          <HexCell col={4} row={8} size="lg">
             <div className="countdown-wrapper">
               <CountdownTimer
                 seconds={1423}
@@ -208,14 +270,14 @@ export default function App() {
             </div>
           </HexCell>
 
-          {/* Row 6: More results + activity trigger */}
-          {recentResults.slice(5).map((result, i) => (
-            <HexCell key={result.id} col={i} row={6} size="sm" interactive onClick={() => handleResultClick(result)}>
-              <ResultCell result={result} onClick={handleResultClick} />
-            </HexCell>
-          ))}
+          {/* ═══ ROW 9: Hazard divider + caution cells ═══ */}
+          <HexCell col={0} row={9} size="md">
+            <WarningHex level="caution" label="FLAKY" labelJa="不安定">
+              <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{metrics.flakyCount}</div>
+            </WarningHex>
+          </HexCell>
 
-          <HexCell col={3} row={6} size="md" interactive onClick={() => setDrawerOpen(true)}>
+          <HexCell col={1} row={9} size="md" interactive onClick={() => setDrawerOpen(true)}>
             <div className="activity-trigger">
               <HazardStripes height={2} animated speed={10} />
               <div className="activity-trigger__label">VIEW ACTIVITY</div>
@@ -224,13 +286,12 @@ export default function App() {
             </div>
           </HexCell>
 
-          <HexCell col={4} row={6} size="md">
-            <MagiPanel
-              system="caspar"
-              vote="deny"
-              syncRate={67.2}
-              label="INTEG SUITE"
-            />
+          <HexCell col={2} row={9} size="md">
+            <HudTooltip content="Total completed test runs">
+              <div style={{ width: '100%', height: '100%' }}>
+                <MetricCell label="TOTAL RUNS" labelJa="実行回数" value={metrics.totalRuns} accent="default" />
+              </div>
+            </HudTooltip>
           </HexCell>
         </HexDashboard>
 

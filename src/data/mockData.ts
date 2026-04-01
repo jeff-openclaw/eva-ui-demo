@@ -11,6 +11,7 @@ export interface TestSuite {
   duration: string;
   lastRun: string;
   trend: 'up' | 'down' | 'stable';
+  runHistory: ('pass' | 'fail' | 'mixed')[];
 }
 
 export interface TestResult {
@@ -48,8 +49,9 @@ export const testSuites: TestSuite[] = [
     failed: 5,
     skipped: 3,
     duration: '3m 47s',
-    lastRun: '2026-04-01T08:30:00Z',
+    lastRun: '08:30:00',
     trend: 'up',
+    runHistory: ['pass', 'pass', 'pass', 'mixed', 'pass', 'pass', 'fail', 'pass', 'pass', 'pass'],
   },
   {
     id: 'ui',
@@ -60,8 +62,9 @@ export const testSuites: TestSuite[] = [
     failed: 4,
     skipped: 2,
     duration: '5m 12s',
-    lastRun: '2026-04-01T08:30:00Z',
+    lastRun: '08:30:00',
     trend: 'stable',
+    runHistory: ['pass', 'pass', 'mixed', 'pass', 'pass', 'pass', 'pass', 'mixed', 'pass', 'pass'],
   },
   {
     id: 'integration',
@@ -72,8 +75,9 @@ export const testSuites: TestSuite[] = [
     failed: 10,
     skipped: 3,
     duration: '4m 10s',
-    lastRun: '2026-04-01T08:30:00Z',
+    lastRun: '08:30:00',
     trend: 'down',
+    runHistory: ['mixed', 'fail', 'pass', 'fail', 'mixed', 'pass', 'fail', 'mixed', 'fail', 'mixed'],
   },
 ];
 
@@ -95,14 +99,22 @@ export const flakyTests: FlakyTest[] = [
 ];
 
 export const activityLog: ActivityEntry[] = [
-  { id: 'a1', type: 'run_complete', message: 'Test run #1247 completed — 298/325 passed', timestamp: '08:30:15', severity: 'info' },
-  { id: 'a2', type: 'flaky_detected', message: 'Flaky test detected: WebSocket reconnect (23% failure rate)', timestamp: '08:15:00', severity: 'caution' },
-  { id: 'a3', type: 'test_failed', message: 'POST /orders timeout — exceeded 5s threshold', timestamp: '08:29:55', severity: 'warning' },
-  { id: 'a4', type: 'test_failed', message: 'DB migration check failed — schema mismatch', timestamp: '08:29:42', severity: 'critical' },
-  { id: 'a5', type: 'suite_added', message: 'New test added to API suite: PATCH /users/:id', timestamp: '07:00:00', severity: 'info' },
-  { id: 'a6', type: 'config_changed', message: 'Timeout threshold updated: 3s → 5s for integration tests', timestamp: '06:45:00', severity: 'info' },
-  { id: 'a7', type: 'run_complete', message: 'Test run #1246 completed — 301/325 passed', timestamp: '06:30:00', severity: 'info' },
-  { id: 'a8', type: 'flaky_detected', message: 'Flaky test detected: File upload race (15% failure rate)', timestamp: '05:45:00', severity: 'caution' },
+  { id: 'a01', type: 'run_complete', message: 'Test run #1247 completed — 298/325 passed', timestamp: '08:30:15', severity: 'info' },
+  { id: 'a02', type: 'test_failed', message: 'FAIL  POST /orders timeout — exceeded 5s threshold', timestamp: '08:29:55', severity: 'warning' },
+  { id: 'a03', type: 'test_failed', message: 'FAIL  DB migration check — schema mismatch on users table', timestamp: '08:29:42', severity: 'critical' },
+  { id: 'a04', type: 'flaky_detected', message: 'FLAKY WebSocket reconnect — 23% failure rate over 50 runs', timestamp: '08:15:00', severity: 'caution' },
+  { id: 'a05', type: 'run_complete', message: 'Test run #1246 completed — 301/325 passed', timestamp: '08:10:22', severity: 'info' },
+  { id: 'a06', type: 'test_failed', message: 'FAIL  File upload race condition — intermittent 500', timestamp: '08:05:11', severity: 'warning' },
+  { id: 'a07', type: 'suite_added', message: 'NEW   PATCH /users/:id added to API suite', timestamp: '07:00:00', severity: 'info' },
+  { id: 'a08', type: 'config_changed', message: 'CFG   Timeout threshold updated: 3s → 5s for integration', timestamp: '06:45:00', severity: 'info' },
+  { id: 'a09', type: 'run_complete', message: 'Test run #1245 completed — 305/325 passed', timestamp: '06:30:00', severity: 'info' },
+  { id: 'a10', type: 'flaky_detected', message: 'FLAKY File upload race — 15% failure rate over 40 runs', timestamp: '05:45:00', severity: 'caution' },
+  { id: 'a11', type: 'run_complete', message: 'Test run #1244 completed — 310/325 passed', timestamp: '04:30:00', severity: 'info' },
+  { id: 'a12', type: 'test_failed', message: 'FAIL  Animation timing assert — off by 32ms', timestamp: '04:22:18', severity: 'warning' },
+  { id: 'a13', type: 'config_changed', message: 'CFG   Parallel workers increased: 4 → 8', timestamp: '03:00:00', severity: 'info' },
+  { id: 'a14', type: 'run_complete', message: 'Test run #1243 completed — 312/325 passed', timestamp: '02:30:00', severity: 'info' },
+  { id: 'a15', type: 'suite_added', message: 'NEW   WebSocket reconnect stress test added', timestamp: '01:15:00', severity: 'info' },
+  { id: 'a16', type: 'run_complete', message: 'Test run #1242 completed — 308/325 passed', timestamp: '00:30:00', severity: 'info' },
 ];
 
 // Aggregate metrics
@@ -113,4 +125,7 @@ export const metrics = {
   flakyCount: 3,
   totalRuns: 1247,
   failedTests: 19,
+  passTarget: 95,
+  totalTarget: 400,
+  durationTarget: '3m 00s',
 };
