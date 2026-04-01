@@ -1,0 +1,248 @@
+/* Eva-UI Demo — Global Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0a0a0a;
+  color: #e0e0e0;
+  font-family: 'Courier New', 'Menlo', 'Monaco', monospace;
+}
+
+.app-root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Suite Cell ── */
+.suite-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  gap: 0.35rem;
+}
+
+.suite-cell__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.suite-cell__name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.suite-cell__name-ja {
+  font-size: 0.55rem;
+  opacity: 0.4;
+}
+
+.suite-cell__stats {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.suite-cell__ratio {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--eva-hex-active, #0f0);
+  font-variant-numeric: tabular-nums;
+}
+
+.suite-cell__label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.5;
+}
+
+.suite-cell__bar {
+  display: flex;
+  width: 80%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.suite-cell__bar-pass {
+  height: 100%;
+  background: var(--eva-hex-active, #0f0);
+  transition: width 0.6s ease;
+}
+
+.suite-cell__bar-fail {
+  height: 100%;
+  background: var(--eva-crimson, #f00);
+  transition: width 0.6s ease;
+}
+
+.suite-cell__footer {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.55rem;
+  opacity: 0.6;
+}
+
+.suite-cell__rate {
+  font-weight: 700;
+}
+
+.suite-cell__trend {
+  font-weight: 600;
+}
+
+.suite-cell__duration {
+  opacity: 0.5;
+}
+
+/* ── Metric Cell ── */
+.metric-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.75rem;
+  text-align: center;
+  gap: 0.2rem;
+}
+
+.metric-cell__label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.5;
+}
+
+.metric-cell__label-ja {
+  font-size: 0.5rem;
+  opacity: 0.25;
+}
+
+.metric-cell__value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.metric-cell__unit {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  margin-left: 0.1rem;
+}
+
+/* ── Result Cell ── */
+.result-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.4rem;
+  text-align: center;
+  cursor: pointer;
+  gap: 0.15rem;
+}
+
+.result-cell__icon {
+  font-size: 1rem;
+}
+
+.result-cell__name {
+  font-size: 0.45rem;
+  line-height: 1.2;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-cell__meta {
+  display: flex;
+  gap: 0.3rem;
+  font-size: 0.4rem;
+  opacity: 0.4;
+}
+
+/* ── Modal Stats ── */
+.modal-stat {
+  text-align: center;
+}
+
+.modal-stat__label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.5;
+  margin-bottom: 0.25rem;
+}
+
+.modal-stat__value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Activity Trigger Cell ── */
+.activity-trigger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.75rem;
+  text-align: center;
+  gap: 0.3rem;
+  cursor: pointer;
+}
+
+.activity-trigger__label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: 0.3rem;
+}
+
+.activity-trigger__label-ja {
+  font-size: 0.5rem;
+  opacity: 0.3;
+}
+
+.activity-trigger__count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--eva-hex-active, #0f0);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Countdown Wrapper ── */
+.countdown-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
