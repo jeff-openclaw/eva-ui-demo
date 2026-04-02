@@ -123,7 +123,7 @@ export default function App() {
           {evaUnits.map((unit, i) => (
             <HexCell
               key={unit.id}
-              col={i * 3}
+              col={i * 2}
               row={0}
               size="lg"
               state={unit.status === 'engaged' ? 'warning' : unit.status === 'active' ? 'active' : 'default'}
@@ -196,13 +196,17 @@ export default function App() {
           </HexCell>
 
           {/* ═══ ROW 3: MAGI Voting ═══ */}
-          {magiVotes.map((mv, i) => (
-            <HexCell key={mv.system} col={i * 2} row={3} size="lg">
-              <MagiPanel system={mv.system} vote={mv.vote} syncRate={mv.confidence} label={mv.label} />
-            </HexCell>
-          ))}
+          <HexCell col={0} row={3}>
+            <MagiPanel system={magiVotes[0].system} vote={magiVotes[0].vote} syncRate={magiVotes[0].confidence} label={magiVotes[0].label} />
+          </HexCell>
+          <HexCell col={1} row={3}>
+            <MagiPanel system={magiVotes[1].system} vote={magiVotes[1].vote} syncRate={magiVotes[1].confidence} label={magiVotes[1].label} />
+          </HexCell>
+          <HexCell col={2} row={3}>
+            <MagiPanel system={magiVotes[2].system} vote={magiVotes[2].vote} syncRate={magiVotes[2].confidence} label={magiVotes[2].label} />
+          </HexCell>
 
-          <HexCell col={6} row={3} size="lg">
+          <HexCell col={3} row={3} size="lg">
             <MagiConsole
               votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
               syncRates={{ melchior: 94.7, balthasar: 91.2, caspar: 67.8 }}
