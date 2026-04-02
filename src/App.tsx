@@ -6,15 +6,14 @@ import {
   HudHeader,
   HudSidebar,
   HudAlert,
-  HudTooltip,
   MagiPanel,
   MagiConsole,
   CountdownTimer,
-  WarningHex,
   ScanlineOverlay,
+  hexGroupPositions,
 } from 'eva-ui';
 
-import { evaUnits, magiVotes, systemStatuses, metrics } from './data/mockData';
+import { evaUnits, magiVotes, metrics } from './data/mockData';
 import type { EvaUnit } from './data/mockData';
 import { EvaUnitModal } from './components/EvaUnitModal';
 import { ActivityDrawer } from './components/ActivityDrawer';
@@ -39,6 +38,111 @@ function useClock() {
   return time;
 }
 
+function formatPower(seconds: number) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function EvaCluster({ unit, centerCol, centerRow, onUnitClick }: {
+  unit: EvaUnit;
+  centerCol: number;
+  centerRow: number;
+  onUnitClick: (unit: EvaUnit) => void;
+}) {
+  const cells = hexGroupPositions('hex-7', centerCol, centerRow);
+  const centerState = unit.status === 'engaged' ? 'warning' : unit.status === 'active' ? 'active' : 'default';
+
+  // Ring data: index 1=top-right(sync), 2=right(weapon), 3=bottom-right(damage),
+  //            4=bottom-left(power), 5=left(AT field), 6=top-left(pilot)
+  const ringData = [
+    { value: `${unit.syncRate}%`, label: 'SYNC', color: unit.syncRate >= 90 ? green : unit.syncRate >= 70 ? gold : red },
+    { value: unit.weapons[0], label: 'WEAPON', color: gold, small: true },
+    { value: `${unit.damage}%`, label: 'DAMAGE', color: unit.damage > 10 ? red : unit.damage > 0 ? gold : green },
+    { value: formatPower(unit.powerRemaining), label: 'POWER', color: unit.powerRemaining < 180 ? red : gold },
+    { value: `${unit.atFieldStrength}%`, label: 'AT FIELD', color: unit.atFieldStrength >= 85 ? green : gold },
+    { value: unit.pilot.split(' ')[0], label: 'PILOT', color: '#fff' },
+  ];
+
+  return (
+    <>
+      {/* Center cell — EVA status */}
+      <HexCell
+        key={`${unit.id}-center`}
+        col={cells[0].col}
+        row={cells[0].row}
+        state={centerState}
+        interactive
+        onClick={() => onUnitClick(unit)}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '0.5rem', opacity: 0.5, letterSpacing: '0.15em' }}>{unit.nameJa}</div>
+          <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', marginBottom: '0.15rem' }}>{unit.name}</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 900, color: statusColor[unit.status], letterSpacing: '0.15em' }}>
+            {unit.status.toUpperCase()}
+          </div>
+        </div>
+      </HexCell>
+
+      {/* Ring cells — supporting data */}
+      {ringData.map((data, i) => {
+        const cell = cells[i + 1];
+        return (
+          <HexCell key={`${unit.id}-ring-${i}`} col={cell.col} row={cell.row} state="default">
+            <div className="metric">
+              <div className="metric__value" style={{ color: data.color, fontSize: data.small ? '0.55rem' : '0.85rem' }}>
+                {data.value}
+              </div>
+              <div className="metric__label">{data.label}</div>
+            </div>
+          </HexCell>
+        );
+      })}
+    </>
+  );
+}
+
+function MagiCluster({ centerCol, centerRow }: { centerCol: number; centerRow: number }) {
+  const cells = hexGroupPositions('hex-7', centerCol, centerRow);
+
+  const tacticalData = [
+    { value: 'BLUE', label: 'PATTERN', color: gold },
+    { value: '7th', label: 'ANGEL', color: red },
+    { value: `${metrics.angelDistance}km`, label: 'DISTANCE', color: red },
+  ];
+
+  return (
+    <>
+      {/* Center — MAGI verdict */}
+      <HexCell col={cells[0].col} row={cells[0].row} state="active">
+        <MagiConsole
+          votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
+          syncRates={{ melchior: 94.7, balthasar: 91.2, caspar: 67.8 }}
+          title="VERDICT"
+          titleJa="判定"
+        />
+      </HexCell>
+
+      {/* Index 1,2,3 — MAGI panels */}
+      {magiVotes.map((vote, i) => (
+        <HexCell key={`magi-${vote.system}`} col={cells[i + 1].col} row={cells[i + 1].row} state="default">
+          <MagiPanel system={vote.system} vote={vote.vote} syncRate={vote.confidence} label={vote.label} />
+        </HexCell>
+      ))}
+
+      {/* Index 4,5,6 — Tactical info */}
+      {tacticalData.map((data, i) => (
+        <HexCell key={`tac-${i}`} col={cells[i + 4].col} row={cells[i + 4].row} state="default">
+          <div className="metric">
+            <div className="metric__value" style={{ color: data.color, fontSize: '0.85rem' }}>{data.value}</div>
+            <div className="metric__label">{data.label}</div>
+          </div>
+        </HexCell>
+      ))}
+    </>
+  );
+}
+
 export default function App() {
   const [activeNav, setActiveNav] = useState<NavItem>('operations');
   const [modalUnit, setModalUnit] = useState<EvaUnit | null>(null);
@@ -49,17 +153,14 @@ export default function App() {
   const handleUnitClick = useCallback((unit: EvaUnit) => setModalUnit(unit), []);
   const conditionColor = metrics.condition === 'RED' ? red : gold;
 
-  // Grid: 15 cols × 8 rows at cellSize=68
-  // Layout: centered zones of adjacent cells that merge visually
-
   return (
     <EvaThemeProvider variant="nerv">
       <div className="app-root">
         <ScanlineOverlay opacity={0.03} animated fixed />
 
         <HexDashboard
-          cellSize={68}
-          gap={4}
+          cellSize={55}
+          gap={3}
           gapDistribution="left"
           gapDistributionVertical="top"
           atmosphere
@@ -112,155 +213,17 @@ export default function App() {
           }}
         >
 
-          {/* ═══════════════════════════════════════════════════════
-              ZONE A: EVA UNITS — Row 0, cols 1-3-5 (merged area)
-              Three adjacent cells form a visual unit status strip
-              ═══════════════════════════════════════════════════════ */}
-          {evaUnits.map((unit, i) => (
-            <HexCell
-              key={unit.id}
-              col={1 + i * 2}
-              row={0}
-              state={unit.status === 'engaged' ? 'warning' : unit.status === 'active' ? 'active' : 'default'}
-              interactive
-              onClick={() => handleUnitClick(unit)}
-            >
-              <div className="eva-card">
-                <div className="eva-card__name">{unit.name}</div>
-                <div className="eva-card__status" style={{ color: statusColor[unit.status] }}>
-                  {unit.status.toUpperCase()}
-                </div>
-                <div className="eva-card__sync">
-                  <span style={{ color: unit.syncRate >= 90 ? green : unit.syncRate >= 70 ? gold : red }}>
-                    {unit.syncRate}%
-                  </span>
-                </div>
-              </div>
-            </HexCell>
-          ))}
-          {/* Sync rate detail cells flanking the EVA cards (row 0) */}
-          <HexCell col={0} row={0}>
-            <div className="metric"><div className="metric__value" style={{ color: green, fontSize: '1rem' }}>{evaUnits[0].pilot.split(' ')[0]}</div><div className="metric__label">PILOT 01</div></div>
-          </HexCell>
-          <HexCell col={2} row={0}>
-            <div className="metric"><div className="metric__value" style={{ color: gold, fontSize: '1rem' }}>{evaUnits[1].pilot.split(' ')[0]}</div><div className="metric__label">PILOT 00</div></div>
-          </HexCell>
-          <HexCell col={4} row={0}>
-            <div className="metric"><div className="metric__value" style={{ color: red, fontSize: '1rem' }}>{evaUnits[2].pilot.split(' ')[0]}</div><div className="metric__label">PILOT 02</div></div>
-          </HexCell>
-          <HexCell col={6} row={0}>
-            <div className="metric"><div className="metric__value" style={{ color: green }}>3/3</div><div className="metric__label">DEPLOYED</div></div>
-          </HexCell>
+          {/* ═══ EVA-01 cluster: col=3, row=2 ═══ */}
+          <EvaCluster unit={evaUnits[0]} centerCol={3} centerRow={2} onUnitClick={handleUnitClick} />
 
-          {/* ═══════════════════════════════════════════════════════
-              ZONE B: METRICS — Row 1, cols 0-5 (tight strip)
-              Adjacent cells create a continuous metrics bar
-              ═══════════════════════════════════════════════════════ */}
-          <HexCell col={0} row={1}>
-            <div className="metric"><div className="metric__value" style={{ color: green }}>{metrics.atFieldStrength}%</div><div className="metric__label">AT FIELD</div></div>
-          </HexCell>
-          <HexCell col={1} row={1}>
-            <div className="metric"><div className="metric__value" style={{ color: gold }}>{metrics.avgSyncRate}%</div><div className="metric__label">AVG SYNC</div></div>
-          </HexCell>
-          <HexCell col={2} row={1}>
-            <div className="metric"><div className="metric__value" style={{ color: red }}>{metrics.angelDistance}</div><div className="metric__label">DIST KM</div></div>
-          </HexCell>
-          <HexCell col={3} row={1} state="warning">
-            <WarningHex level="warning" label="DAMAGE" labelJa="損傷">
-              <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{metrics.totalDamage}%</div>
-            </WarningHex>
-          </HexCell>
-          <HexCell col={4} row={1}>
-            <div className="metric"><div className="metric__value" style={{ color: green }}>{metrics.totalTests}</div><div className="metric__label">PWR SEC</div></div>
-          </HexCell>
-          <HexCell col={5} row={1}>
-            <div className="countdown-wrap">
-              <CountdownTimer seconds={272} format="mm:ss" label="限界" labelSub="POWER" warningThreshold={120} criticalThreshold={30} autoStart />
-            </div>
-          </HexCell>
+          {/* ═══ EVA-00 cluster: col=7, row=2 ═══ */}
+          <EvaCluster unit={evaUnits[1]} centerCol={7} centerRow={2} onUnitClick={handleUnitClick} />
 
-          {/* ═══════════════════════════════════════════════════════
-              ZONE C: MAGI SYSTEM — Row 2-3, cols 7-11
-              MAGI panels clustered together as a decision block
-              ═══════════════════════════════════════════════════════ */}
-          <HexCell col={7} row={0}>
-            <MagiPanel system={magiVotes[0].system} vote={magiVotes[0].vote} syncRate={magiVotes[0].confidence} label={magiVotes[0].label} />
-          </HexCell>
-          <HexCell col={8} row={0}>
-            <MagiPanel system={magiVotes[1].system} vote={magiVotes[1].vote} syncRate={magiVotes[1].confidence} label={magiVotes[1].label} />
-          </HexCell>
-          <HexCell col={9} row={0}>
-            <MagiPanel system={magiVotes[2].system} vote={magiVotes[2].vote} syncRate={magiVotes[2].confidence} label={magiVotes[2].label} />
-          </HexCell>
-          <HexCell col={7} row={1}>
-            <MagiConsole
-              votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
-              syncRates={{ melchior: 94.7, balthasar: 91.2, caspar: 67.8 }}
-              title="VERDICT"
-              titleJa="判定"
-            />
-          </HexCell>
-          <HexCell col={8} row={1}>
-            <div className="metric"><div className="metric__value" style={{ color: green, fontSize: '0.8rem' }}>2-1</div><div className="metric__label">MAJORITY</div></div>
-          </HexCell>
+          {/* ═══ EVA-02 cluster: col=11, row=2 ═══ */}
+          <EvaCluster unit={evaUnits[2]} centerCol={11} centerRow={2} onUnitClick={handleUnitClick} />
 
-          {/* ═══════════════════════════════════════════════════════
-              ZONE D: WEAPONS — Row 2, cols 0-5
-              Equipment strip adjacent to metrics
-              ═══════════════════════════════════════════════════════ */}
-          {evaUnits.map((unit, i) => (
-            <HexCell key={`wpn-${unit.id}`} col={i * 2} row={2}>
-              <div className="metric">
-                <div className="metric__value" style={{ fontSize: '0.65rem', color: gold, lineHeight: 1.3 }}>{unit.weapons[0]}</div>
-                <div className="metric__label">{unit.name}</div>
-              </div>
-            </HexCell>
-          ))}
-          {evaUnits.map((unit, i) => (
-            <HexCell key={`dmg-${unit.id}`} col={i * 2 + 1} row={2}>
-              <div className="metric">
-                <div className="metric__value" style={{ fontSize: '1rem', color: unit.damage > 0 ? red : green }}>{unit.damage}%</div>
-                <div className="metric__label">DMG</div>
-              </div>
-            </HexCell>
-          ))}
-
-          {/* ═══════════════════════════════════════════════════════
-              ZONE E: SYSTEMS — Row 3, cols 0-5
-              Status indicators as a continuous strip
-              ═══════════════════════════════════════════════════════ */}
-          {systemStatuses.map((sys, i) => (
-            <HexCell key={sys.id} col={i} row={3} state={sys.operational ? 'default' : 'warning'}>
-              <HudTooltip content={`${sys.name}: ${sys.operational ? 'ONLINE' : 'OFFLINE'}`}>
-                <div className="sys-status">
-                  <div className="sys-status__icon" style={{ color: sys.operational ? green : red }}>
-                    {sys.operational ? '●' : '✗'}
-                  </div>
-                  <div className="sys-status__name">{sys.name}</div>
-                </div>
-              </HudTooltip>
-            </HexCell>
-          ))}
-
-          {/* ═══════════════════════════════════════════════════════
-              ZONE F: TACTICAL — Row 2-3, cols 7-10
-              Additional tactical data in the MAGI area
-              ═══════════════════════════════════════════════════════ */}
-          <HexCell col={7} row={2}>
-            <div className="metric"><div className="metric__value" style={{ color: red, fontSize: '1rem' }}>7th</div><div className="metric__label">ANGEL</div></div>
-          </HexCell>
-          <HexCell col={8} row={2}>
-            <div className="metric"><div className="metric__value" style={{ color: gold, fontSize: '0.9rem' }}>BLUE</div><div className="metric__label">PATTERN</div></div>
-          </HexCell>
-          <HexCell col={9} row={2}>
-            <div className="metric"><div className="metric__value" style={{ color: red }}>{metrics.angelDistance}</div><div className="metric__label">CLOSING</div></div>
-          </HexCell>
-          <HexCell col={7} row={3}>
-            <div className="metric"><div className="metric__value" style={{ color: green, fontSize: '0.8rem' }}>NERV-1</div><div className="metric__label">BRANCH</div></div>
-          </HexCell>
-          <HexCell col={8} row={3}>
-            <div className="metric"><div className="metric__value" style={{ color: gold, fontSize: '0.8rem' }}>GEO</div><div className="metric__label">FRONT</div></div>
-          </HexCell>
+          {/* ═══ MAGI cluster: col=7, row=5 ═══ */}
+          <MagiCluster centerCol={7} centerRow={5} />
 
         </HexDashboard>
 
