@@ -14,7 +14,7 @@ import {
   ScanlineOverlay,
 } from 'eva-ui';
 
-import { evaUnits, magiVotes, systemStatuses, metrics, pilotRoster } from './data/mockData';
+import { evaUnits, magiVotes, systemStatuses, metrics } from './data/mockData';
 import type { EvaUnit } from './data/mockData';
 import { EvaUnitModal } from './components/EvaUnitModal';
 import { ActivityDrawer } from './components/ActivityDrawer';
@@ -26,22 +26,6 @@ const green = '#0f0';
 const red = '#ff3b3b';
 const dim = 'rgba(255,255,255,0.35)';
 
-const bigNum: React.CSSProperties = {
-  fontSize: '2.4rem',
-  fontWeight: 800,
-  lineHeight: 1,
-  letterSpacing: '0.04em',
-  fontVariantNumeric: 'tabular-nums',
-};
-
-const cellLabel: React.CSSProperties = {
-  fontSize: '0.6rem',
-  fontWeight: 600,
-  letterSpacing: '0.14em',
-  color: dim,
-  marginTop: '0.4rem',
-};
-
 const statusColor = {
   active: green,
   standby: gold,
@@ -50,14 +34,12 @@ const statusColor = {
 } as const;
 
 function useClock() {
-  const [time, setTime] = useState(() => {
-    const d = new Date();
-    return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  });
+  const [time, setTime] = useState(() =>
+    new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  );
   useEffect(() => {
     const id = setInterval(() => {
-      const d = new Date();
-      setTime(d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      setTime(new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     }, 1000);
     return () => clearInterval(id);
   }, []);
@@ -83,28 +65,27 @@ export default function App() {
         <ScanlineOverlay opacity={0.03} animated fixed />
 
         <HexDashboard
-          layout="masonry"
-          cellSize={90}
+          cellSize={64}
           gap={4}
+          gapDistribution="left"
+          gapDistributionVertical="top"
           atmosphere
           zones={{
             top: (
               <HudHeader scanlines>
-                <HudHeader.Title subtitle="ネルフ作戦本部">
-                  NERV OPERATIONS
-                </HudHeader.Title>
+                <HudHeader.Title subtitle="ネルフ作戦本部">NERV OPERATIONS</HudHeader.Title>
                 <HudHeader.Status>
                   <span style={{ marginRight: '1.5rem' }}>
                     <span style={{ opacity: 0.4, marginRight: '0.5rem', fontSize: '0.65rem' }}>CONDITION</span>
-                    <span style={{ color: conditionColor, fontWeight: 700, letterSpacing: '0.08em' }}>{metrics.condition}</span>
+                    <span style={{ color: conditionColor, fontWeight: 700 }}>{metrics.condition}</span>
                   </span>
                   <span style={{ marginRight: '1.5rem', fontVariantNumeric: 'tabular-nums' }}>
                     <span style={{ opacity: 0.4, marginRight: '0.5rem', fontSize: '0.65rem' }}>OP TIME</span>
-                    <span style={{ fontWeight: 700, letterSpacing: '0.08em' }}>{metrics.operationTime}</span>
+                    <span style={{ fontWeight: 700 }}>{metrics.operationTime}</span>
                   </span>
                   <span style={{ fontVariantNumeric: 'tabular-nums' }}>
                     <span style={{ opacity: 0.4, marginRight: '0.5rem', fontSize: '0.65rem' }}>CLOCK</span>
-                    <span style={{ fontWeight: 700, letterSpacing: '0.08em' }}>{clock}</span>
+                    <span style={{ fontWeight: 700 }}>{clock}</span>
                   </span>
                 </HudHeader.Status>
               </HudHeader>
@@ -124,176 +105,89 @@ export default function App() {
                   <HudSidebar.NavItem label="Systems" active={activeNav === 'systems'} onClick={() => setActiveNav('systems')} />
                 </HudSidebar.Nav>
                 <HudSidebar.Footer>
-                  <div style={{ fontSize: '0.55rem', opacity: 0.3, textAlign: 'center', lineHeight: 1.6 }}>
-                    GOD&apos;S IN HIS HEAVEN<br />
-                    ALL&apos;S RIGHT WITH<br />
-                    THE WORLD
+                  <div style={{ fontSize: '0.5rem', opacity: 0.25, textAlign: 'center', lineHeight: 1.6 }}>
+                    GOD&apos;S IN HIS HEAVEN<br/>ALL&apos;S RIGHT WITH<br/>THE WORLD
                   </div>
                 </HudSidebar.Footer>
               </HudSidebar>
             ),
             overlay: alertVisible ? (
-              <HudAlert
-                severity="warning"
-                title="ANGEL DETECTED — PATTERN BLUE"
-                titleJa="使徒感知 — パターン青"
-                onDismiss={() => setAlertVisible(false)}
-                autoDismiss={15000}
-              >
+              <HudAlert severity="warning" title="ANGEL DETECTED — PATTERN BLUE" titleJa="使徒感知 — パターン青" onDismiss={() => setAlertVisible(false)} autoDismiss={15000}>
                 7th Angel identified at 2.4km — all units engage
               </HudAlert>
             ) : null,
           }}
         >
 
-          {/* ═══ Priority 0: EVA Unit Hero Cards (xl) ═══ */}
-          {evaUnits.map((unit) => (
+          {/* ═══ ROW 0: EVA Unit Status Cards ═══ */}
+          {evaUnits.map((unit, i) => (
             <HexCell
               key={unit.id}
-              size="xl"
-              priority={0}
+              col={i * 3}
+              row={0}
+              size="lg"
               state={unit.status === 'engaged' ? 'warning' : unit.status === 'active' ? 'active' : 'default'}
               interactive
               onClick={() => handleUnitClick(unit)}
             >
-              <div className="eva-hero">
-                <div className="eva-hero__header">
-                  <span className="eva-hero__designation">{unit.name}</span>
-                  <span className="eva-hero__ja">{unit.nameJa}</span>
-                  <span className="eva-hero__badge" style={{ background: statusColor[unit.status] }}>
-                    {unit.status.toUpperCase()}
+              <div className="eva-card">
+                <div className="eva-card__name">{unit.name}</div>
+                <div className="eva-card__status" style={{ color: statusColor[unit.status] }}>
+                  {unit.status.toUpperCase()}
+                </div>
+                <div className="eva-card__pilot">{unit.pilot}</div>
+                <div className="eva-card__sync">
+                  <span style={{ color: unit.syncRate >= 90 ? green : unit.syncRate >= 70 ? gold : red }}>
+                    {unit.syncRate}%
                   </span>
-                </div>
-                <div className="eva-hero__pilot">
-                  <span style={{ opacity: 0.4, fontSize: '0.6rem', letterSpacing: '0.1em' }}>PILOT</span>
-                  <span style={{ fontWeight: 600 }}>{unit.pilot}</span>
-                </div>
-                <div className="eva-hero__bar-group">
-                  <div className="eva-hero__bar-label">
-                    <span>SYNC RATE</span>
-                    <span style={{ color: unit.syncRate >= 90 ? green : unit.syncRate >= 70 ? gold : red }}>{unit.syncRate}%</span>
-                  </div>
-                  <div className="eva-hero__bar">
-                    <div className="eva-hero__bar-fill" style={{ width: `${unit.syncRate}%`, background: unit.syncRate >= 90 ? green : unit.syncRate >= 70 ? gold : red }} />
-                  </div>
-                </div>
-                {unit.damage > 0 && (
-                  <div className="eva-hero__bar-group">
-                    <div className="eva-hero__bar-label">
-                      <span>DAMAGE</span>
-                      <span style={{ color: unit.damage >= 20 ? red : gold }}>{unit.damage}%</span>
-                    </div>
-                    <div className="eva-hero__bar">
-                      <div className="eva-hero__bar-fill" style={{ width: `${unit.damage}%`, background: unit.damage >= 20 ? red : gold }} />
-                    </div>
-                  </div>
-                )}
-                <div className="eva-hero__bar-group">
-                  <div className="eva-hero__bar-label">
-                    <span>POWER</span>
-                    <span style={{ color: unit.powerRemaining < 180 ? red : green }}>
-                      {Math.floor(unit.powerRemaining / 60)}:{String(unit.powerRemaining % 60).padStart(2, '0')}
-                    </span>
-                  </div>
-                  <div className="eva-hero__bar">
-                    <div className="eva-hero__bar-fill" style={{ width: `${Math.min(100, (unit.powerRemaining / 300) * 100)}%`, background: unit.powerRemaining < 180 ? red : green }} />
-                  </div>
-                </div>
-                <div className="eva-hero__footer">
-                  <span style={{ opacity: 0.3, fontSize: '0.55rem' }}>AT FIELD {unit.atFieldStrength}%</span>
-                  <span style={{ opacity: 0.3, fontSize: '0.55rem' }}>{unit.weapons[0]}</span>
+                  <span className="eva-card__sync-label"> SYNC</span>
                 </div>
               </div>
             </HexCell>
           ))}
 
-          {/* ═══ Priority 0: Pilot Roster Table (xl) ═══ */}
-          <HexCell size="xl" priority={0}>
-            <div className="roster-table-wrap">
-              <div className="roster-table__title">PILOT STATUS — パイロット状態</div>
-              <table className="roster-table">
-                <thead>
-                  <tr>
-                    <th>PILOT</th>
-                    <th>UNIT</th>
-                    <th>SYNC</th>
-                    <th>STATUS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pilotRoster.map((p) => (
-                    <tr key={p.unit}>
-                      <td>{p.pilot}</td>
-                      <td>{p.unit}</td>
-                      <td style={{ color: p.sync >= 90 ? green : p.sync >= 70 ? gold : red }}>{p.sync}%</td>
-                      <td style={{ color: statusColor[p.status] }}>{p.status.toUpperCase()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* ═══ ROW 2: Key Metrics ═══ */}
+          <HexCell col={0} row={2}>
+            <div className="metric">
+              <div className="metric__value" style={{ color: green }}>{metrics.atFieldStrength}%</div>
+              <div className="metric__label">AT FIELD</div>
             </div>
           </HexCell>
 
-          {/* ═══ Priority 1: MAGI Voting (lg) ═══ */}
-          {magiVotes.map((mv) => (
-            <HexCell key={mv.system} size="lg" priority={1}>
-              <MagiPanel
-                system={mv.system}
-                vote={mv.vote}
-                syncRate={mv.confidence}
-                label={mv.label}
-              />
-            </HexCell>
-          ))}
-
-          <HexCell size="lg" priority={1}>
-            <MagiConsole
-              votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
-              syncRates={{ melchior: 94.7, balthasar: 91.2, caspar: 67.8 }}
-              title="OPERATION STATUS"
-              titleJa="作戦状態"
-            />
+          <HexCell col={1} row={2}>
+            <div className="metric">
+              <div className="metric__value" style={{ color: gold }}>{metrics.avgSyncRate}%</div>
+              <div className="metric__label">AVG SYNC</div>
+            </div>
           </HexCell>
 
-          {/* ═══ Priority 2: Key Metrics (lg) ═══ */}
-          <HexCell size="lg" priority={2}>
-            <HudTooltip content="Combined AT Field neutralization strength">
-              <div className="metric-cell">
-                <div className="metric-cell__value" style={{ color: green }}>{metrics.atFieldStrength}%</div>
-                <div className="metric-cell__label">AT FIELD</div>
-              </div>
-            </HudTooltip>
+          <HexCell col={2} row={2}>
+            <div className="metric">
+              <div className="metric__value" style={{ color: red }}>{metrics.angelDistance}</div>
+              <div className="metric__label">DISTANCE</div>
+            </div>
           </HexCell>
 
-          <HexCell size="lg" priority={2}>
-            <HudTooltip content="Average across all active pilots">
-              <div className="metric-cell">
-                <div className="metric-cell__value" style={{ color: gold }}>{metrics.avgSyncRate}%</div>
-                <div className="metric-cell__label">SYNC RATE</div>
-              </div>
-            </HudTooltip>
+          <HexCell col={3} row={2}>
+            <WarningHex level={metrics.totalDamage >= 20 ? 'warning' : 'caution'} label="DAMAGE" labelJa="損傷">
+              <div style={{ fontSize: '1.4rem', fontWeight: 700 }}>{metrics.totalDamage}%</div>
+            </WarningHex>
           </HexCell>
 
-          <HexCell size="lg" priority={2}>
-            <HudTooltip content="Distance to Angel core — closing">
-              <div className="metric-cell">
-                <div className="metric-cell__value" style={{ color: red }}>{metrics.angelDistance}km</div>
-                <div className="metric-cell__label">ANGEL DISTANCE</div>
-              </div>
-            </HudTooltip>
+          <HexCell col={4} row={2}>
+            <div className="metric">
+              <div className="metric__value" style={{ color: green }}>3</div>
+              <div className="metric__label">UNITS</div>
+            </div>
           </HexCell>
 
-          <HexCell size="lg" priority={2} state="warning">
-            <WarningHex level="warning" label={`${metrics.totalDamage}% DAMAGE`} labelJa="損傷" />
-          </HexCell>
-
-          <HexCell size="lg" priority={2}>
-            <div className="countdown-wrapper">
+          <HexCell col={5} row={2}>
+            <div className="countdown-wrap">
               <CountdownTimer
                 seconds={272}
                 format="mm:ss"
                 label="活動限界"
-                labelSub="EVA-01 POWER"
+                labelSub="POWER"
                 warningThreshold={120}
                 criticalThreshold={30}
                 autoStart
@@ -301,20 +195,31 @@ export default function App() {
             </div>
           </HexCell>
 
-          {/* ═══ Priority 3: System Status Indicators (sm) ═══ */}
-          {systemStatuses.map((sys) => (
-            <HexCell
-              key={sys.id}
-              size="sm"
-              priority={3}
-              state={sys.operational ? 'active' : 'warning'}
-            >
-              <HudTooltip content={`${sys.name}: ${sys.operational ? 'OPERATIONAL' : 'OFFLINE'}`}>
-                <div className="system-cell">
-                  <div className="system-cell__icon" style={{ color: sys.operational ? green : red }}>
-                    {sys.operational ? '✓' : '✗'}
+          {/* ═══ ROW 3: MAGI Voting ═══ */}
+          {magiVotes.map((mv, i) => (
+            <HexCell key={mv.system} col={i * 2} row={3} size="lg">
+              <MagiPanel system={mv.system} vote={mv.vote} syncRate={mv.confidence} label={mv.label} />
+            </HexCell>
+          ))}
+
+          <HexCell col={6} row={3} size="lg">
+            <MagiConsole
+              votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
+              syncRates={{ melchior: 94.7, balthasar: 91.2, caspar: 67.8 }}
+              title="VERDICT"
+              titleJa="判定"
+            />
+          </HexCell>
+
+          {/* ═══ ROW 5: System Status ═══ */}
+          {systemStatuses.map((sys, i) => (
+            <HexCell key={sys.id} col={i + 1} row={5} state={sys.operational ? 'default' : 'warning'}>
+              <HudTooltip content={`${sys.name}: ${sys.operational ? 'ONLINE' : 'OFFLINE'}`}>
+                <div className="sys-status">
+                  <div className="sys-status__icon" style={{ color: sys.operational ? green : red }}>
+                    {sys.operational ? '●' : '✗'}
                   </div>
-                  <div className="system-cell__name">{sys.name}</div>
+                  <div className="sys-status__name">{sys.name}</div>
                 </div>
               </HudTooltip>
             </HexCell>
@@ -322,7 +227,6 @@ export default function App() {
 
         </HexDashboard>
 
-        {/* Overlays */}
         <EvaUnitModal unit={modalUnit} open={modalUnit !== null} onClose={() => setModalUnit(null)} />
         <ActivityDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       </div>
