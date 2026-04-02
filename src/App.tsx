@@ -65,8 +65,8 @@ export default function App() {
         <ScanlineOverlay opacity={0.03} animated fixed />
 
         <HexDashboard
-          cellSize={64}
-          gap={4}
+          cellSize={100}
+          gap={5}
           gapDistribution="left"
           gapDistributionVertical="top"
           atmosphere
@@ -119,11 +119,11 @@ export default function App() {
           }}
         >
 
-          {/* ═══ ROW 0: EVA Unit Status Cards ═══ */}
+          {/* ═══ ROW 0: EVA Unit Status Cards (cols 0,3,6 — lg=2x2) ═══ */}
           {evaUnits.map((unit, i) => (
             <HexCell
               key={unit.id}
-              col={i * 2}
+              col={i * 3}
               row={0}
               size="lg"
               state={unit.status === 'engaged' ? 'warning' : unit.status === 'active' ? 'active' : 'default'}
@@ -147,41 +147,28 @@ export default function App() {
           ))}
 
           {/* ═══ ROW 2: Key Metrics ═══ */}
-          <HexCell col={0} row={2}>
+          {/* ═══ ROW 2: Key Metrics (spread across cols 0-8) ═══ */}
+          <HexCell col={1} row={2}>
             <div className="metric">
               <div className="metric__value" style={{ color: green }}>{metrics.atFieldStrength}%</div>
               <div className="metric__label">AT FIELD</div>
             </div>
           </HexCell>
 
-          <HexCell col={1} row={2}>
+          <HexCell col={3} row={2}>
             <div className="metric">
               <div className="metric__value" style={{ color: gold }}>{metrics.avgSyncRate}%</div>
               <div className="metric__label">AVG SYNC</div>
             </div>
           </HexCell>
 
-          <HexCell col={2} row={2}>
-            <div className="metric">
-              <div className="metric__value" style={{ color: red }}>{metrics.angelDistance}</div>
-              <div className="metric__label">DISTANCE</div>
-            </div>
-          </HexCell>
-
-          <HexCell col={3} row={2}>
+          <HexCell col={5} row={2}>
             <WarningHex level={metrics.totalDamage >= 20 ? 'warning' : 'caution'} label="DAMAGE" labelJa="損傷">
               <div style={{ fontSize: '1.4rem', fontWeight: 700 }}>{metrics.totalDamage}%</div>
             </WarningHex>
           </HexCell>
 
-          <HexCell col={4} row={2}>
-            <div className="metric">
-              <div className="metric__value" style={{ color: green }}>3</div>
-              <div className="metric__label">UNITS</div>
-            </div>
-          </HexCell>
-
-          <HexCell col={5} row={2}>
+          <HexCell col={7} row={2}>
             <div className="countdown-wrap">
               <CountdownTimer
                 seconds={272}
@@ -195,18 +182,18 @@ export default function App() {
             </div>
           </HexCell>
 
-          {/* ═══ ROW 3: MAGI Voting ═══ */}
-          <HexCell col={0} row={3}>
+          {/* ═══ ROW 3-4: MAGI Voting (lg cells, spread) ═══ */}
+          <HexCell col={0} row={3} size="lg">
             <MagiPanel system={magiVotes[0].system} vote={magiVotes[0].vote} syncRate={magiVotes[0].confidence} label={magiVotes[0].label} />
           </HexCell>
-          <HexCell col={1} row={3}>
+          <HexCell col={3} row={3} size="lg">
             <MagiPanel system={magiVotes[1].system} vote={magiVotes[1].vote} syncRate={magiVotes[1].confidence} label={magiVotes[1].label} />
           </HexCell>
-          <HexCell col={2} row={3}>
+          <HexCell col={6} row={3} size="lg">
             <MagiPanel system={magiVotes[2].system} vote={magiVotes[2].vote} syncRate={magiVotes[2].confidence} label={magiVotes[2].label} />
           </HexCell>
 
-          <HexCell col={3} row={3} size="lg">
+          <HexCell col={2} row={5} size="lg">
             <MagiConsole
               votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
               syncRates={{ melchior: 94.7, balthasar: 91.2, caspar: 67.8 }}
@@ -217,7 +204,7 @@ export default function App() {
 
           {/* ═══ ROW 5: System Status ═══ */}
           {systemStatuses.map((sys, i) => (
-            <HexCell key={sys.id} col={i + 1} row={5} state={sys.operational ? 'default' : 'warning'}>
+            <HexCell key={sys.id} col={i + 1} row={7} state={sys.operational ? 'default' : 'warning'}>
               <HudTooltip content={`${sys.name}: ${sys.operational ? 'ONLINE' : 'OFFLINE'}`}>
                 <div className="sys-status">
                   <div className="sys-status__icon" style={{ color: sys.operational ? green : red }}>
