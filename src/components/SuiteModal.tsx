@@ -15,10 +15,26 @@ const statusColor = {
   skip: 'var(--eva-border, #666)',
 } as const;
 
+const dotColor = {
+  pass: 'var(--eva-hex-active, #0f0)',
+  fail: 'var(--eva-crimson, #f00)',
+  mixed: '#ff0',
+} as const;
+
+const trendLabel = { up: '▲ Improving', down: '▼ Declining', stable: '― Stable' } as const;
+const trendColor = {
+  up: 'var(--eva-hex-active, #0f0)',
+  down: 'var(--eva-crimson, #f00)',
+  stable: 'var(--eva-border, #666)',
+} as const;
+
 export function SuiteModal({ suite, open, onClose }: SuiteModalProps) {
   if (!suite) return null;
 
   const passRate = ((suite.passed / suite.total) * 100).toFixed(1);
+  const passW = (suite.passed / suite.total) * 100;
+  const failW = (suite.failed / suite.total) * 100;
+  const skipW = (suite.skipped / suite.total) * 100;
   const suiteResults = recentResults.filter(
     (r) => r.suite.toLowerCase() === suite.name.split(' ')[0].toLowerCase()
   );
@@ -56,6 +72,7 @@ export function SuiteModal({ suite, open, onClose }: SuiteModalProps) {
     >
       <HazardStripes height={3} animated />
 
+      {/* Stats grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem', margin: '1rem 0' }}>
         <div className="modal-stat">
           <div className="modal-stat__label">TOTAL</div>
@@ -75,13 +92,49 @@ export function SuiteModal({ suite, open, onClose }: SuiteModalProps) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', margin: '0.5rem 0 1rem' }}>
+      {/* Pass rate + duration + trend */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', margin: '0.5rem 0 1rem', fontSize: '0.85rem' }}>
         <span>Pass Rate: <strong>{passRate}%</strong></span>
         <span>Duration: <strong>{suite.duration}</strong></span>
+        <span style={{ color: trendColor[suite.trend] }}>{trendLabel[suite.trend]}</span>
+      </div>
+
+      {/* Stacked bar */}
+      <div style={{ display: 'flex', width: '100%', height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', overflow: 'hidden', margin: '0.5rem 0' }}>
+        <div style={{ width: `${passW}%`, height: '100%', background: 'var(--eva-hex-active, #0f0)', transition: 'width 0.6s ease' }} />
+        <div style={{ width: `${failW}%`, height: '100%', background: 'var(--eva-crimson, #f00)', transition: 'width 0.6s ease' }} />
+        <div style={{ width: `${skipW}%`, height: '100%', background: 'var(--eva-border, #666)', transition: 'width 0.6s ease' }} />
+      </div>
+      <div style={{ display: 'flex', gap: '1rem', fontSize: '0.65rem', opacity: 0.5, marginBottom: '1rem' }}>
+        <span>■ Pass {suite.passed}</span>
+        <span style={{ color: 'var(--eva-crimson, #f00)' }}>■ Fail {suite.failed}</span>
+        <span style={{ color: 'var(--eva-border, #666)' }}>■ Skip {suite.skipped}</span>
+      </div>
+
+      {/* Run history dots */}
+      <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.6, marginBottom: '0.4rem' }}>
+        Run History
+      </div>
+      <div style={{ display: 'flex', gap: '6px', marginBottom: '1rem' }}>
+        {suite.runHistory.map((r, i) => (
+          <span
+            key={i}
+            title={`Run ${i + 1}: ${r}`}
+            style={{
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              background: dotColor[r],
+              opacity: 0.85,
+              display: 'inline-block',
+            }}
+          />
+        ))}
       </div>
 
       <HazardStripes height={2} />
 
+      {/* Recent results */}
       <div style={{ marginTop: '1rem' }}>
         <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.6, marginBottom: '0.5rem' }}>
           Recent Results
@@ -90,7 +143,7 @@ export function SuiteModal({ suite, open, onClose }: SuiteModalProps) {
           <div style={{ opacity: 0.4, fontStyle: 'italic' }}>No recent results for this suite</div>
         )}
         {suiteResults.map((r) => (
-          <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.3rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.85rem' }}>
             <span>
               <span style={{ color: statusColor[r.status], marginRight: '0.5rem' }}>{statusIcon[r.status]}</span>
               {r.name}
