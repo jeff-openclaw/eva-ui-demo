@@ -33,7 +33,7 @@ html, body, #root, .eva-theme {
   padding: 0.75rem 0.5rem;
   text-align: center;
   cursor: pointer;
-  gap: 0.25rem;
+  gap: 0.3rem;
 }
 
 .suite-cell__header {
@@ -43,14 +43,14 @@ html, body, #root, .eva-theme {
 }
 
 .suite-cell__name {
-  font-size: 0.65rem;
+  font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
 
 .suite-cell__name-ja {
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   opacity: 0.35;
 }
 
@@ -61,14 +61,14 @@ html, body, #root, .eva-theme {
 }
 
 .suite-cell__ratio {
-  font-size: 1.4rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: var(--eva-hex-active, #0f0);
   font-variant-numeric: tabular-nums;
 }
 
 .suite-cell__label {
-  font-size: 0.55rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   opacity: 0.5;
@@ -76,8 +76,8 @@ html, body, #root, .eva-theme {
 
 .suite-cell__bar {
   display: flex;
-  width: 80%;
-  height: 3px;
+  width: 75%;
+  height: 4px;
   background: rgba(255, 255, 255, 0.06);
   overflow: hidden;
   border-radius: 1px;
@@ -104,7 +104,7 @@ html, body, #root, .eva-theme {
 .suite-cell__footer {
   display: flex;
   gap: 0.6rem;
-  font-size: 0.5rem;
+  font-size: 0.65rem;
   opacity: 0.6;
   align-items: center;
 }
@@ -115,7 +115,7 @@ html, body, #root, .eva-theme {
 
 .suite-cell__trend {
   font-weight: 600;
-  font-size: 0.5rem;
+  font-size: 0.6rem;
 }
 
 .suite-cell__last-run {
@@ -124,18 +124,18 @@ html, body, #root, .eva-theme {
 }
 
 .suite-cell__clock {
-  font-size: 0.45rem;
+  font-size: 0.55rem;
 }
 
 .suite-cell__dots {
   display: flex;
-  gap: 3px;
+  gap: 4px;
   margin-top: 0.15rem;
 }
 
 .suite-cell__dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   opacity: 0.8;
   transition: opacity 0.2s;
@@ -156,23 +156,23 @@ html, body, #root, .eva-theme {
   height: 100%;
   padding: 0.5rem;
   text-align: center;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
 
 .metric-cell__label {
-  font-size: 0.5rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   opacity: 0.5;
 }
 
 .metric-cell__label-ja {
-  font-size: 0.45rem;
+  font-size: 0.55rem;
   opacity: 0.2;
 }
 
 .metric-cell__value {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   font-family: 'Courier New', 'Menlo', monospace;
@@ -180,14 +180,14 @@ html, body, #root, .eva-theme {
 }
 
 .metric-cell__unit {
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   opacity: 0.6;
   margin-left: 0.1rem;
 }
 
 .metric-cell__progress {
-  width: 70%;
-  height: 2px;
+  width: 65%;
+  height: 3px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 1px;
   overflow: hidden;
@@ -208,18 +208,18 @@ html, body, #root, .eva-theme {
   align-items: center;
   width: 100%;
   height: 100%;
-  padding: 0.4rem;
+  padding: 0.5rem;
   text-align: center;
   cursor: pointer;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
 
 .result-cell__icon {
-  font-size: 1rem;
+  font-size: 1.4rem;
 }
 
 .result-cell__name {
-  font-size: 0.45rem;
+  font-size: 0.65rem;
   line-height: 1.2;
   max-width: 90%;
   overflow: hidden;
@@ -230,7 +230,7 @@ html, body, #root, .eva-theme {
 .result-cell__meta {
   display: flex;
   gap: 0.3rem;
-  font-size: 0.4rem;
+  font-size: 0.55rem;
   opacity: 0.4;
 }
 
@@ -321,7 +321,7 @@ html, body, #root, .eva-theme {
 }
 
 .activity-feed__title {
-  font-size: 0.55rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -329,7 +329,7 @@ html, body, #root, .eva-theme {
 }
 
 .activity-feed__title-ja {
-  font-size: 0.45rem;
+  font-size: 0.55rem;
   opacity: 0.25;
 }
 
@@ -358,8 +358,8 @@ html, body, #root, .eva-theme {
   display: flex;
   gap: 0.4rem;
   align-items: baseline;
-  padding: 0.15rem 0;
-  font-size: 0.5rem;
+  padding: 0.2rem 0;
+  font-size: 0.65rem;
   line-height: 1.4;
   border-bottom: 1px solid rgba(255,255,255,0.03);
   animation: feedFadeIn 0.3s ease both;
@@ -380,11 +380,11 @@ html, body, #root, .eva-theme {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   flex-shrink: 0;
-  font-size: 0.45rem;
+  font-size: 0.6rem;
 }
 
 .activity-feed__badge {
-  font-size: 0.4rem;
+  font-size: 0.55rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   border: 1px solid;
