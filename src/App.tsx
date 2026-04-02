@@ -56,7 +56,7 @@ export default function App() {
         <ScanlineOverlay opacity={0.03} animated fixed />
 
         <HexDashboard
-          cellSize={60}
+          cellSize={72}
           gap={6}
           gapDistribution="left"
           gapDistributionVertical="top"
@@ -117,7 +117,7 @@ export default function App() {
             ) : null,
           }}
         >
-          {/* ═══ ROW 0: Metric Cells (md) — at-a-glance numbers ═══ */}
+          {/* ═══ ROW 0: Metric Cells (md) — consecutive cols ═══ */}
           <HexCell col={0} row={0} size="md">
             <HudTooltip content={`Target: ${metrics.totalTarget} tests`}>
               <div style={{ width: '100%', height: '100%' }}>
@@ -126,7 +126,7 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell col={2} row={0} size="md">
+          <HexCell col={1} row={0} size="md">
             <HudTooltip content={`Target: ${metrics.passTarget}%`}>
               <div style={{ width: '100%', height: '100%' }}>
                 <MetricCell label="PASS RATE" value={metrics.passRate} unit="%" accent="success" />
@@ -134,7 +134,7 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell col={4} row={0} size="md">
+          <HexCell col={2} row={0} size="md">
             <HudTooltip content={`${metrics.failedTests} tests failed in the latest run`}>
               <div style={{ width: '100%', height: '100%' }}>
                 <MetricCell label="FAILED" value={metrics.failedTests} accent="danger" />
@@ -142,7 +142,7 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell col={6} row={0} size="md">
+          <HexCell col={3} row={0} size="md">
             <HudTooltip content={flakyTests.map(f => `${f.name} (${f.flakyRate}%)`).join(', ')}>
               <div style={{ width: '100%', height: '100%' }}>
                 <MetricCell label="FLAKY" value={metrics.flakyCount} accent="warn" />
@@ -150,7 +150,7 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell col={8} row={0} size="md">
+          <HexCell col={4} row={0} size="md">
             <HudTooltip content={`Target: ${metrics.durationTarget}`}>
               <div style={{ width: '100%', height: '100%' }}>
                 <MetricCell label="AVG DURATION" value={metrics.avgDuration} accent="default" />
@@ -158,20 +158,20 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          {/* ═══ ROW 2: MAGI Voting Panels + Console + Countdown ═══ */}
-          <HexCell col={0} row={2} size="md">
+          {/* ═══ ROW 1: MAGI Voting Panels + Console + Countdown ═══ */}
+          <HexCell col={0} row={1} size="md">
             <MagiPanel system="melchior" vote="approve" syncRate={94.7} label="AUTH SUITE" />
           </HexCell>
 
-          <HexCell col={2} row={2} size="md">
+          <HexCell col={1} row={1} size="md">
             <MagiPanel system="balthasar" vote="approve" syncRate={93.7} label="UI SUITE" />
           </HexCell>
 
-          <HexCell col={4} row={2} size="md">
+          <HexCell col={2} row={1} size="md">
             <MagiPanel system="caspar" vote="deny" syncRate={67.2} label="INTEG SUITE" />
           </HexCell>
 
-          <HexCell col={6} row={2} size="md">
+          <HexCell col={3} row={1} size="md">
             <MagiConsole
               votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
               syncRates={{ melchior: 94.7, balthasar: 93.7, caspar: 67.2 }}
@@ -180,7 +180,7 @@ export default function App() {
             />
           </HexCell>
 
-          <HexCell col={8} row={2} size="md">
+          <HexCell col={4} row={1} size="md">
             <div className="countdown-wrapper">
               <CountdownTimer
                 seconds={1423}
@@ -194,8 +194,8 @@ export default function App() {
             </div>
           </HexCell>
 
-          {/* ═══ ROW 3: Test Suite Summaries + WarningHex ═══ */}
-          <HexCell col={0} row={3} size="lg" state="active" interactive onClick={() => handleSuiteClick(testSuites[0])}>
+          {/* ═══ ROW 2: Test Suite Summaries (lg) + WarningHex ═══ */}
+          <HexCell col={0} row={2} size="lg" state="active" interactive onClick={() => handleSuiteClick(testSuites[0])}>
             <HudTooltip content={`${testSuites[0].passed}/${testSuites[0].total} passing — ${testSuites[0].duration}`}>
               <div style={{ width: '100%', height: '100%' }}>
                 <TestSuiteCell suite={testSuites[0]} onClick={handleSuiteClick} />
@@ -203,7 +203,7 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell col={3} row={3} size="lg" state="active" interactive onClick={() => handleSuiteClick(testSuites[1])}>
+          <HexCell col={3} row={2} size="lg" state="active" interactive onClick={() => handleSuiteClick(testSuites[1])}>
             <HudTooltip content={`${testSuites[1].passed}/${testSuites[1].total} passing — ${testSuites[1].duration}`}>
               <div style={{ width: '100%', height: '100%' }}>
                 <TestSuiteCell suite={testSuites[1]} onClick={handleSuiteClick} />
@@ -211,11 +211,7 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell col={6} row={3} size="md" state="warning">
-            <WarningHex level="warning" label={`${metrics.failedTests} FAILED`} labelJa="失敗" />
-          </HexCell>
-
-          <HexCell col={8} row={3} size="lg" state="warning" interactive onClick={() => handleSuiteClick(testSuites[2])}>
+          <HexCell col={6} row={2} size="lg" state="warning" interactive onClick={() => handleSuiteClick(testSuites[2])}>
             <HudTooltip content={`${testSuites[2].passed}/${testSuites[2].total} passing — ${testSuites[2].duration}`}>
               <div style={{ width: '100%', height: '100%' }}>
                 <TestSuiteCell suite={testSuites[2]} onClick={handleSuiteClick} />
@@ -223,9 +219,13 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          {/* ═══ ROW 5: Recent Result Status Dots (sm) ═══ */}
+          <HexCell col={8} row={2} size="md" state="warning">
+            <WarningHex level="warning" label={`${metrics.failedTests} FAILED`} labelJa="失敗" />
+          </HexCell>
+
+          {/* ═══ ROW 3: Recent Result Status Dots (sm) — consecutive cols ═══ */}
           {recentResults.map((r, i) => (
-            <HexCell key={r.id} col={i} row={5} size="sm" state={r.status === 'fail' ? 'warning' : r.status === 'pass' ? 'active' : 'default'}>
+            <HexCell key={r.id} col={i} row={3} size="sm" state={r.status === 'fail' ? 'warning' : r.status === 'pass' ? 'active' : 'default'}>
               <ResultCell result={r} />
             </HexCell>
           ))}

@@ -47,7 +47,7 @@ html, body, #root, .eva-theme {
 .suite-cell__rate {
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--eva-hex-active, #0f0);
+  color: var(--eva-gold, #f0c040);
   font-variant-numeric: tabular-nums;
   font-family: 'Courier New', 'Menlo', monospace;
   line-height: 1.1;
