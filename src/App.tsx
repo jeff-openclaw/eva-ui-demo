@@ -152,7 +152,6 @@ export default function App() {
               key={unit.id}
               size="xl"
               priority={0}
-              clipped={false}
               state={unit.status === 'engaged' ? 'warning' : unit.status === 'active' ? 'active' : 'default'}
               interactive
               onClick={() => handleUnitClick(unit)}
@@ -209,7 +208,7 @@ export default function App() {
           ))}
 
           {/* ═══ Priority 0: Pilot Roster Table (xl) ═══ */}
-          <HexCell size="xl" priority={0} clipped={false}>
+          <HexCell size="xl" priority={0}>
             <div className="roster-table-wrap">
               <div className="roster-table__title">PILOT STATUS — パイロット状態</div>
               <table className="roster-table">
@@ -237,7 +236,7 @@ export default function App() {
 
           {/* ═══ Priority 1: MAGI Voting (lg) ═══ */}
           {magiVotes.map((mv) => (
-            <HexCell key={mv.system} size="lg" priority={1} clipped={false}>
+            <HexCell key={mv.system} size="lg" priority={1}>
               <MagiPanel
                 system={mv.system}
                 vote={mv.vote}
@@ -247,7 +246,7 @@ export default function App() {
             </HexCell>
           ))}
 
-          <HexCell size="lg" priority={1} clipped={false}>
+          <HexCell size="lg" priority={1}>
             <MagiConsole
               votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
               syncRates={{ melchior: 94.7, balthasar: 91.2, caspar: 67.8 }}
@@ -257,7 +256,7 @@ export default function App() {
           </HexCell>
 
           {/* ═══ Priority 2: Key Metrics (lg) ═══ */}
-          <HexCell size="lg" priority={2} clipped={false}>
+          <HexCell size="lg" priority={2}>
             <HudTooltip content="Combined AT Field neutralization strength">
               <div className="metric-cell">
                 <div className="metric-cell__value" style={{ color: green }}>{metrics.atFieldStrength}%</div>
@@ -266,7 +265,7 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell size="lg" priority={2} clipped={false}>
+          <HexCell size="lg" priority={2}>
             <HudTooltip content="Average across all active pilots">
               <div className="metric-cell">
                 <div className="metric-cell__value" style={{ color: gold }}>{metrics.avgSyncRate}%</div>
@@ -275,7 +274,7 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell size="lg" priority={2} clipped={false}>
+          <HexCell size="lg" priority={2}>
             <HudTooltip content="Distance to Angel core — closing">
               <div className="metric-cell">
                 <div className="metric-cell__value" style={{ color: red }}>{metrics.angelDistance}km</div>
@@ -284,11 +283,11 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell size="lg" priority={2} state="warning" clipped={false}>
+          <HexCell size="lg" priority={2} state="warning">
             <WarningHex level="warning" label={`${metrics.totalDamage}% DAMAGE`} labelJa="損傷" />
           </HexCell>
 
-          <HexCell size="lg" priority={2} clipped={false}>
+          <HexCell size="lg" priority={2}>
             <div className="countdown-wrapper">
               <CountdownTimer
                 seconds={272}
