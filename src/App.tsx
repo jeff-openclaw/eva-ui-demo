@@ -16,13 +16,41 @@ import {
 
 import { testSuites, metrics, recentResults, flakyTests } from './data/mockData';
 import type { TestSuite } from './data/mockData';
-import { TestSuiteCell } from './components/TestSuiteCell';
-import { MetricCell } from './components/MetricCell';
-import { ResultCell } from './components/ResultCell';
 import { SuiteModal } from './components/SuiteModal';
 import { ActivityDrawer } from './components/ActivityDrawer';
 
 type NavItem = 'dashboard' | 'suites' | 'runs' | 'reports' | 'settings';
+
+const gold = '#f5c842';
+const dim = 'rgba(255,255,255,0.35)';
+
+const bigNum: React.CSSProperties = {
+  fontSize: '2.4rem',
+  fontWeight: 800,
+  color: gold,
+  lineHeight: 1,
+  letterSpacing: '0.04em',
+  fontVariantNumeric: 'tabular-nums',
+};
+
+const cellLabel: React.CSSProperties = {
+  fontSize: '0.6rem',
+  fontWeight: 600,
+  letterSpacing: '0.14em',
+  color: dim,
+  marginTop: '0.4rem',
+};
+
+const suiteCard: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '100%',
+  height: '100%',
+  cursor: 'pointer',
+  gap: '0.25rem',
+};
 
 function useClock() {
   const [time, setTime] = useState(() => {
@@ -37,6 +65,10 @@ function useClock() {
     return () => clearInterval(id);
   }, []);
   return time;
+}
+
+function passRate(suite: TestSuite) {
+  return ((suite.passed / suite.total) * 100).toFixed(1);
 }
 
 export default function App() {
@@ -56,10 +88,9 @@ export default function App() {
         <ScanlineOverlay opacity={0.03} animated fixed />
 
         <HexDashboard
+          layout="masonry"
           cellSize={72}
           gap={6}
-          gapDistribution="left"
-          gapDistributionVertical="top"
           atmosphere
           zones={{
             top: (
@@ -117,70 +148,91 @@ export default function App() {
             ) : null,
           }}
         >
-          {/* ═══ ROW 0: Metric Cells (md) — consecutive cols ═══ */}
-          <HexCell col={0} row={0} size="md">
-            <HudTooltip content={`Target: ${metrics.totalTarget} tests`}>
-              <div style={{ width: '100%', height: '100%' }}>
-                <MetricCell label="TOTAL TESTS" value={metrics.totalTests} accent="default" />
-              </div>
-            </HudTooltip>
-          </HexCell>
 
-          <HexCell col={1} row={0} size="md">
+          {/* ═══ Priority 0: Hero Metrics (lg) ═══ */}
+          <HexCell size="lg" priority={0}>
             <HudTooltip content={`Target: ${metrics.passTarget}%`}>
-              <div style={{ width: '100%', height: '100%' }}>
-                <MetricCell label="PASS RATE" value={metrics.passRate} unit="%" accent="success" />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                <div style={bigNum}>{metrics.passRate}%</div>
+                <div style={cellLabel}>PASS RATE</div>
               </div>
             </HudTooltip>
           </HexCell>
 
-          <HexCell col={2} row={0} size="md">
+          <HexCell size="lg" priority={0}>
+            <HudTooltip content={`Target: ${metrics.totalTarget} tests`}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                <div style={bigNum}>{metrics.totalTests}</div>
+                <div style={cellLabel}>TOTAL TESTS</div>
+              </div>
+            </HudTooltip>
+          </HexCell>
+
+          <HexCell size="lg" priority={0} state="warning">
             <HudTooltip content={`${metrics.failedTests} tests failed in the latest run`}>
-              <div style={{ width: '100%', height: '100%' }}>
-                <MetricCell label="FAILED" value={metrics.failedTests} accent="danger" />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                <div style={{ ...bigNum, color: '#ff3b3b' }}>{metrics.failedTests}</div>
+                <div style={cellLabel}>FAILED</div>
               </div>
             </HudTooltip>
           </HexCell>
 
-          <HexCell col={3} row={0} size="md">
-            <HudTooltip content={flakyTests.map(f => `${f.name} (${f.flakyRate}%)`).join(', ')}>
-              <div style={{ width: '100%', height: '100%' }}>
-                <MetricCell label="FLAKY" value={metrics.flakyCount} accent="warn" />
-              </div>
-            </HudTooltip>
-          </HexCell>
-
-          <HexCell col={4} row={0} size="md">
-            <HudTooltip content={`Target: ${metrics.durationTarget}`}>
-              <div style={{ width: '100%', height: '100%' }}>
-                <MetricCell label="AVG DURATION" value={metrics.avgDuration} accent="default" />
-              </div>
-            </HudTooltip>
-          </HexCell>
-
-          {/* ═══ ROW 1: MAGI Voting Panels + Console + Countdown ═══ */}
-          <HexCell col={0} row={1} size="md">
+          {/* ═══ Priority 1: MAGI Voting Panels (lg) ═══ */}
+          <HexCell size="lg" priority={1}>
             <MagiPanel system="melchior" vote="approve" syncRate={94.7} label="AUTH SUITE" />
           </HexCell>
 
-          <HexCell col={1} row={1} size="md">
+          <HexCell size="lg" priority={1}>
             <MagiPanel system="balthasar" vote="approve" syncRate={93.7} label="UI SUITE" />
           </HexCell>
 
-          <HexCell col={2} row={1} size="md">
+          <HexCell size="lg" priority={1}>
             <MagiPanel system="caspar" vote="deny" syncRate={67.2} label="INTEG SUITE" />
           </HexCell>
 
-          <HexCell col={3} row={1} size="md">
-            <MagiConsole
-              votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
-              syncRates={{ melchior: 94.7, balthasar: 93.7, caspar: 67.2 }}
-              title="BUILD VERDICT"
-              titleJa="ビルド判定"
-            />
+          {/* ═══ Priority 2: Suite Summaries (lg, interactive) ═══ */}
+          {testSuites.map((suite) => (
+            <HexCell
+              key={suite.id}
+              size="lg"
+              priority={2}
+              state={suite.trend === 'down' ? 'warning' : 'active'}
+              interactive
+              onClick={() => handleSuiteClick(suite)}
+            >
+              <HudTooltip content={`${suite.passed}/${suite.total} passing — ${suite.duration}`}>
+                <div style={suiteCard}>
+                  <div style={{ fontSize: '0.55rem', letterSpacing: '0.12em', color: dim }}>{suite.nameJa}</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.06em' }}>{suite.name}</div>
+                  <div style={{ ...bigNum, fontSize: '1.8rem' }}>{passRate(suite)}%</div>
+                  <div style={{ fontSize: '0.55rem', color: dim }}>
+                    {suite.passed} pass · {suite.failed} fail · {suite.skipped} skip
+                  </div>
+                </div>
+              </HudTooltip>
+            </HexCell>
+          ))}
+
+          {/* ═══ Priority 3: Secondary Info (md) ═══ */}
+          <HexCell size="md" priority={3}>
+            <HudTooltip content={flakyTests.map(f => `${f.name} (${f.flakyRate}%)`).join(', ')}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                <div style={{ ...bigNum, fontSize: '1.6rem', color: '#ffa500' }}>{metrics.flakyCount}</div>
+                <div style={cellLabel}>FLAKY</div>
+              </div>
+            </HudTooltip>
           </HexCell>
 
-          <HexCell col={4} row={1} size="md">
+          <HexCell size="md" priority={3}>
+            <HudTooltip content={`Target: ${metrics.durationTarget}`}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                <div style={{ ...bigNum, fontSize: '1.2rem' }}>{metrics.avgDuration}</div>
+                <div style={cellLabel}>AVG DURATION</div>
+              </div>
+            </HudTooltip>
+          </HexCell>
+
+          <HexCell size="md" priority={3}>
             <div className="countdown-wrapper">
               <CountdownTimer
                 seconds={1423}
@@ -194,41 +246,61 @@ export default function App() {
             </div>
           </HexCell>
 
-          {/* ═══ ROW 2: Test Suite Summaries (lg) + WarningHex ═══ */}
-          <HexCell col={0} row={2} size="lg" state="active" interactive onClick={() => handleSuiteClick(testSuites[0])}>
-            <HudTooltip content={`${testSuites[0].passed}/${testSuites[0].total} passing — ${testSuites[0].duration}`}>
-              <div style={{ width: '100%', height: '100%' }}>
-                <TestSuiteCell suite={testSuites[0]} onClick={handleSuiteClick} />
-              </div>
-            </HudTooltip>
+          <HexCell size="md" priority={3}>
+            <MagiConsole
+              votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
+              syncRates={{ melchior: 94.7, balthasar: 93.7, caspar: 67.2 }}
+              title="BUILD VERDICT"
+              titleJa="ビルド判定"
+            />
           </HexCell>
 
-          <HexCell col={3} row={2} size="lg" state="active" interactive onClick={() => handleSuiteClick(testSuites[1])}>
-            <HudTooltip content={`${testSuites[1].passed}/${testSuites[1].total} passing — ${testSuites[1].duration}`}>
-              <div style={{ width: '100%', height: '100%' }}>
-                <TestSuiteCell suite={testSuites[1]} onClick={handleSuiteClick} />
-              </div>
-            </HudTooltip>
-          </HexCell>
-
-          <HexCell col={6} row={2} size="lg" state="warning" interactive onClick={() => handleSuiteClick(testSuites[2])}>
-            <HudTooltip content={`${testSuites[2].passed}/${testSuites[2].total} passing — ${testSuites[2].duration}`}>
-              <div style={{ width: '100%', height: '100%' }}>
-                <TestSuiteCell suite={testSuites[2]} onClick={handleSuiteClick} />
-              </div>
-            </HudTooltip>
-          </HexCell>
-
-          <HexCell col={8} row={2} size="md" state="warning">
+          <HexCell size="md" priority={3} state="warning">
             <WarningHex level="warning" label={`${metrics.failedTests} FAILED`} labelJa="失敗" />
           </HexCell>
 
-          {/* ═══ ROW 3: Recent Result Status Dots (sm) — consecutive cols ═══ */}
-          {recentResults.map((r, i) => (
-            <HexCell key={r.id} col={i} row={3} size="sm" state={r.status === 'fail' ? 'warning' : r.status === 'pass' ? 'active' : 'default'}>
-              <ResultCell result={r} />
+          {/* ═══ Priority 4: Recent Result Status Dots (sm) ═══ */}
+          {recentResults.map((r) => (
+            <HexCell
+              key={r.id}
+              size="sm"
+              priority={4}
+              state={r.status === 'fail' ? 'warning' : r.status === 'pass' ? 'active' : 'default'}
+            >
+              <HudTooltip content={`${r.name} — ${r.duration}`}>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  height: '100%',
+                  gap: '0.15rem',
+                }}>
+                  <div style={{
+                    fontSize: '0.9rem',
+                  }}>
+                    {r.status === 'pass' ? '✓' : r.status === 'fail' ? '✗' : '—'}
+                  </div>
+                  <div style={{
+                    fontSize: '0.4rem',
+                    letterSpacing: '0.08em',
+                    color: dim,
+                    textAlign: 'center',
+                    lineHeight: 1.2,
+                    maxWidth: '100%',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    padding: '0 0.15rem',
+                  }}>
+                    {r.suite}
+                  </div>
+                </div>
+              </HudTooltip>
             </HexCell>
           ))}
+
         </HexDashboard>
 
         {/* Overlays */}
