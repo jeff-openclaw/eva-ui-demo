@@ -120,6 +120,19 @@ export const operationLog: OperationLogEntry[] = [
   { id: 'op16', type: 'alert', message: 'Angel core detected — coordinates transmitted to all units', timestamp: '13:46:00', severity: 'critical' },
 ];
 
+export interface PilotRosterEntry {
+  pilot: string;
+  unit: string;
+  sync: number;
+  status: 'active' | 'standby' | 'engaged' | 'offline';
+}
+
+export const pilotRoster: PilotRosterEntry[] = [
+  { pilot: 'Ikari', unit: '01', sync: 94.2, status: 'active' },
+  { pilot: 'Ayanami', unit: '00', sync: 99.1, status: 'standby' },
+  { pilot: 'Langley', unit: '02', sync: 78.4, status: 'engaged' },
+];
+
 // Aggregate metrics
 export const metrics = {
   atFieldStrength: 87.3,

@@ -22,41 +22,134 @@ html, body, #root, .eva-theme {
   overflow: hidden;
 }
 
-/* ── Eva Unit Cell ── */
-.eva-cell {
+/* ── Eva Hero Card (xl, clipped=false) ── */
+.eva-hero {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   width: 100%;
   height: 100%;
+  padding: 1.2rem 1.4rem;
+  gap: 0.6rem;
   cursor: pointer;
-  gap: 0.2rem;
 }
 
-.eva-cell__name {
-  font-size: 0.55rem;
-  letter-spacing: 0.12em;
-  opacity: 0.5;
+.eva-hero__header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
 }
 
-.eva-cell__status {
-  font-size: 1.6rem;
+.eva-hero__designation {
+  font-size: 1.4rem;
   font-weight: 800;
-  line-height: 1;
+  letter-spacing: 0.08em;
+}
+
+.eva-hero__ja {
+  font-size: 0.8rem;
+  opacity: 0.4;
   letter-spacing: 0.06em;
 }
 
-.eva-cell__pilot {
+.eva-hero__badge {
   font-size: 0.55rem;
-  opacity: 0.5;
-  margin-top: 0.1rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 0.15rem 0.5rem;
+  color: #000;
+  margin-left: auto;
 }
 
-.eva-cell__sync {
-  font-size: 0.65rem;
-  opacity: 0.7;
+.eva-hero__pilot {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-size: 0.75rem;
+}
+
+.eva-hero__bar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.eva-hero__bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
   font-variant-numeric: tabular-nums;
+}
+
+.eva-hero__bar-label span:last-child {
+  opacity: 1;
+  font-weight: 700;
+}
+
+.eva-hero__bar {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.eva-hero__bar-fill {
+  height: 100%;
+  transition: width 0.6s ease;
+}
+
+.eva-hero__footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+/* ── Roster Table ── */
+.roster-table-wrap {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 1.2rem 1.4rem;
+  gap: 0.8rem;
+}
+
+.roster-table__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #f5c842;
+  opacity: 0.8;
+}
+
+.roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Courier New', 'Menlo', monospace;
+  font-size: 0.75rem;
+}
+
+.roster-table th {
+  text-align: left;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #f5c842;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid rgba(245, 200, 66, 0.3);
+}
+
+.roster-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-variant-numeric: tabular-nums;
+}
+
+.roster-table tr:last-child td {
+  border-bottom: none;
 }
 
 /* ── Metric Cell ── */

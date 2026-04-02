@@ -14,7 +14,7 @@ import {
   ScanlineOverlay,
 } from 'eva-ui';
 
-import { evaUnits, magiVotes, systemStatuses, metrics } from './data/mockData';
+import { evaUnits, magiVotes, systemStatuses, metrics, pilotRoster } from './data/mockData';
 import type { EvaUnit } from './data/mockData';
 import { EvaUnitModal } from './components/EvaUnitModal';
 import { ActivityDrawer } from './components/ActivityDrawer';
@@ -84,7 +84,7 @@ export default function App() {
 
         <HexDashboard
           layout="masonry"
-          cellSize={72}
+          cellSize={90}
           gap={4}
           atmosphere
           zones={{
@@ -146,40 +146,98 @@ export default function App() {
           }}
         >
 
-          {/* ═══ Priority 0: EVA Unit Hero Cards (lg) ═══ */}
+          {/* ═══ Priority 0: EVA Unit Hero Cards (xl) ═══ */}
           {evaUnits.map((unit) => (
             <HexCell
               key={unit.id}
-              size="lg"
+              size="xl"
               priority={0}
+              clipped={false}
               state={unit.status === 'engaged' ? 'warning' : unit.status === 'active' ? 'active' : 'default'}
               interactive
               onClick={() => handleUnitClick(unit)}
             >
-              <HudTooltip content={`${unit.pilot} — Sync ${unit.syncRate}% — Power ${Math.floor(unit.powerRemaining / 60)}:${String(unit.powerRemaining % 60).padStart(2, '0')}`}>
-                <div className="eva-cell">
-                  <div className="eva-cell__name">{unit.nameJa}</div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.06em' }}>{unit.name}</div>
-                  <div className="eva-cell__status" style={{ color: statusColor[unit.status] }}>
+              <div className="eva-hero">
+                <div className="eva-hero__header">
+                  <span className="eva-hero__designation">{unit.name}</span>
+                  <span className="eva-hero__ja">{unit.nameJa}</span>
+                  <span className="eva-hero__badge" style={{ background: statusColor[unit.status] }}>
                     {unit.status.toUpperCase()}
+                  </span>
+                </div>
+                <div className="eva-hero__pilot">
+                  <span style={{ opacity: 0.4, fontSize: '0.6rem', letterSpacing: '0.1em' }}>PILOT</span>
+                  <span style={{ fontWeight: 600 }}>{unit.pilot}</span>
+                </div>
+                <div className="eva-hero__bar-group">
+                  <div className="eva-hero__bar-label">
+                    <span>SYNC RATE</span>
+                    <span style={{ color: unit.syncRate >= 90 ? green : unit.syncRate >= 70 ? gold : red }}>{unit.syncRate}%</span>
                   </div>
-                  <div className="eva-cell__pilot">{unit.pilot}</div>
-                  <div className="eva-cell__sync">
-                    SYNC {unit.syncRate}%
-                    {unit.damage > 0 && (
-                      <span style={{ color: unit.damage >= 20 ? red : gold, marginLeft: '0.5rem' }}>
-                        DMG {unit.damage}%
-                      </span>
-                    )}
+                  <div className="eva-hero__bar">
+                    <div className="eva-hero__bar-fill" style={{ width: `${unit.syncRate}%`, background: unit.syncRate >= 90 ? green : unit.syncRate >= 70 ? gold : red }} />
                   </div>
                 </div>
-              </HudTooltip>
+                {unit.damage > 0 && (
+                  <div className="eva-hero__bar-group">
+                    <div className="eva-hero__bar-label">
+                      <span>DAMAGE</span>
+                      <span style={{ color: unit.damage >= 20 ? red : gold }}>{unit.damage}%</span>
+                    </div>
+                    <div className="eva-hero__bar">
+                      <div className="eva-hero__bar-fill" style={{ width: `${unit.damage}%`, background: unit.damage >= 20 ? red : gold }} />
+                    </div>
+                  </div>
+                )}
+                <div className="eva-hero__bar-group">
+                  <div className="eva-hero__bar-label">
+                    <span>POWER</span>
+                    <span style={{ color: unit.powerRemaining < 180 ? red : green }}>
+                      {Math.floor(unit.powerRemaining / 60)}:{String(unit.powerRemaining % 60).padStart(2, '0')}
+                    </span>
+                  </div>
+                  <div className="eva-hero__bar">
+                    <div className="eva-hero__bar-fill" style={{ width: `${Math.min(100, (unit.powerRemaining / 300) * 100)}%`, background: unit.powerRemaining < 180 ? red : green }} />
+                  </div>
+                </div>
+                <div className="eva-hero__footer">
+                  <span style={{ opacity: 0.3, fontSize: '0.55rem' }}>AT FIELD {unit.atFieldStrength}%</span>
+                  <span style={{ opacity: 0.3, fontSize: '0.55rem' }}>{unit.weapons[0]}</span>
+                </div>
+              </div>
             </HexCell>
           ))}
 
-          {/* ═══ Priority 1: MAGI Voting (md) ═══ */}
+          {/* ═══ Priority 0: Pilot Roster Table (xl) ═══ */}
+          <HexCell size="xl" priority={0} clipped={false}>
+            <div className="roster-table-wrap">
+              <div className="roster-table__title">PILOT STATUS — パイロット状態</div>
+              <table className="roster-table">
+                <thead>
+                  <tr>
+                    <th>PILOT</th>
+                    <th>UNIT</th>
+                    <th>SYNC</th>
+                    <th>STATUS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pilotRoster.map((p) => (
+                    <tr key={p.unit}>
+                      <td>{p.pilot}</td>
+                      <td>{p.unit}</td>
+                      <td style={{ color: p.sync >= 90 ? green : p.sync >= 70 ? gold : red }}>{p.sync}%</td>
+                      <td style={{ color: statusColor[p.status] }}>{p.status.toUpperCase()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </HexCell>
+
+          {/* ═══ Priority 1: MAGI Voting (lg) ═══ */}
           {magiVotes.map((mv) => (
-            <HexCell key={mv.system} size="md" priority={1}>
+            <HexCell key={mv.system} size="lg" priority={1} clipped={false}>
               <MagiPanel
                 system={mv.system}
                 vote={mv.vote}
@@ -189,7 +247,7 @@ export default function App() {
             </HexCell>
           ))}
 
-          <HexCell size="md" priority={1}>
+          <HexCell size="lg" priority={1} clipped={false}>
             <MagiConsole
               votes={{ melchior: 'approve', balthasar: 'approve', caspar: 'deny' }}
               syncRates={{ melchior: 94.7, balthasar: 91.2, caspar: 67.8 }}
@@ -198,8 +256,8 @@ export default function App() {
             />
           </HexCell>
 
-          {/* ═══ Priority 2: Key Metrics (md) ═══ */}
-          <HexCell size="md" priority={2}>
+          {/* ═══ Priority 2: Key Metrics (lg) ═══ */}
+          <HexCell size="lg" priority={2} clipped={false}>
             <HudTooltip content="Combined AT Field neutralization strength">
               <div className="metric-cell">
                 <div className="metric-cell__value" style={{ color: green }}>{metrics.atFieldStrength}%</div>
@@ -208,7 +266,7 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell size="md" priority={2}>
+          <HexCell size="lg" priority={2} clipped={false}>
             <HudTooltip content="Average across all active pilots">
               <div className="metric-cell">
                 <div className="metric-cell__value" style={{ color: gold }}>{metrics.avgSyncRate}%</div>
@@ -217,7 +275,7 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell size="md" priority={2}>
+          <HexCell size="lg" priority={2} clipped={false}>
             <HudTooltip content="Distance to Angel core — closing">
               <div className="metric-cell">
                 <div className="metric-cell__value" style={{ color: red }}>{metrics.angelDistance}km</div>
@@ -226,11 +284,11 @@ export default function App() {
             </HudTooltip>
           </HexCell>
 
-          <HexCell size="md" priority={2} state="warning">
+          <HexCell size="lg" priority={2} state="warning" clipped={false}>
             <WarningHex level="warning" label={`${metrics.totalDamage}% DAMAGE`} labelJa="損傷" />
           </HexCell>
 
-          <HexCell size="md" priority={2}>
+          <HexCell size="lg" priority={2} clipped={false}>
             <div className="countdown-wrapper">
               <CountdownTimer
                 seconds={272}
