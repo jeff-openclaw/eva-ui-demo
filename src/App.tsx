@@ -159,7 +159,7 @@ export default function App() {
         <ScanlineOverlay opacity={0.03} animated fixed />
 
         <HexDashboard
-          cellSize={55}
+          cellSize={44}
           gap={3}
           gapDistribution="left"
           gapDistributionVertical="top"
