@@ -1,131 +1,131 @@
-// Mock data for TestRail-style dashboard
+// NERV Operations Dashboard — Mock Data
 
-export interface TestSuite {
+export interface EvaUnit {
   id: string;
   name: string;
   nameJa: string;
-  total: number;
-  passed: number;
-  failed: number;
-  skipped: number;
-  duration: string;
-  lastRun: string;
-  trend: 'up' | 'down' | 'stable';
-  runHistory: ('pass' | 'fail' | 'mixed')[];
+  pilot: string;
+  pilotJa: string;
+  status: 'active' | 'standby' | 'engaged' | 'offline';
+  syncRate: number;
+  powerRemaining: number; // seconds
+  damage: number; // percentage
+  atFieldStrength: number;
+  weapons: string[];
+  armor: string;
+  notes: string;
 }
 
-export interface TestResult {
+export interface SystemStatus {
   id: string;
   name: string;
-  suite: string;
-  status: 'pass' | 'fail' | 'skip';
-  duration: string;
-  timestamp: string;
+  operational: boolean;
 }
 
-export interface FlakyTest {
-  id: string;
-  name: string;
-  suite: string;
-  flakyRate: number;
-  lastFlake: string;
+export interface MagiVote {
+  system: 'melchior' | 'balthasar' | 'caspar';
+  vote: 'approve' | 'deny';
+  label: string;
+  labelJa: string;
+  confidence: number;
 }
 
-export interface ActivityEntry {
+export interface OperationLogEntry {
   id: string;
-  type: 'run_complete' | 'test_failed' | 'suite_added' | 'flaky_detected' | 'config_changed';
+  type: 'deploy' | 'alert' | 'damage' | 'system' | 'comms' | 'magi';
   message: string;
   timestamp: string;
   severity: 'info' | 'caution' | 'warning' | 'critical';
 }
 
-export const testSuites: TestSuite[] = [
+export const evaUnits: EvaUnit[] = [
   {
-    id: 'api',
-    name: 'API Tests',
-    nameJa: 'API テスト',
-    total: 150,
-    passed: 142,
-    failed: 5,
-    skipped: 3,
-    duration: '3m 47s',
-    lastRun: '08:30:00',
-    trend: 'up',
-    runHistory: ['pass', 'pass', 'pass', 'mixed', 'pass', 'pass', 'fail', 'pass', 'pass', 'pass'],
+    id: 'eva-01',
+    name: 'EVA-01',
+    nameJa: '初号機',
+    pilot: 'Shinji Ikari',
+    pilotJa: '碇シンジ',
+    status: 'active',
+    syncRate: 94.2,
+    powerRemaining: 272, // 4:32
+    damage: 7,
+    atFieldStrength: 91.4,
+    weapons: ['Progressive Knife', 'Pallet Rifle'],
+    armor: 'Type-D Equipment',
+    notes: 'Primary combat unit. Sync rate stable.',
   },
   {
-    id: 'ui',
-    name: 'UI Tests',
-    nameJa: 'UI テスト',
-    total: 95,
-    passed: 89,
-    failed: 4,
-    skipped: 2,
-    duration: '5m 12s',
-    lastRun: '08:30:00',
-    trend: 'stable',
-    runHistory: ['pass', 'pass', 'mixed', 'pass', 'pass', 'pass', 'pass', 'mixed', 'pass', 'pass'],
+    id: 'eva-00',
+    name: 'EVA-00',
+    nameJa: '零号機',
+    pilot: 'Rei Ayanami',
+    pilotJa: '綾波レイ',
+    status: 'standby',
+    syncRate: 99.1,
+    powerRemaining: 300, // 5:00
+    damage: 0,
+    atFieldStrength: 95.0,
+    weapons: ['Positron Rifle', 'Shield'],
+    armor: 'Standard',
+    notes: 'Reserve unit. Ready for deployment.',
   },
   {
-    id: 'integration',
-    name: 'Integration Tests',
-    nameJa: '統合テスト',
-    total: 80,
-    passed: 67,
-    failed: 10,
-    skipped: 3,
-    duration: '4m 10s',
-    lastRun: '08:30:00',
-    trend: 'down',
-    runHistory: ['mixed', 'fail', 'pass', 'fail', 'mixed', 'pass', 'fail', 'mixed', 'fail', 'mixed'],
+    id: 'eva-02',
+    name: 'EVA-02',
+    nameJa: '弐号機',
+    pilot: 'Asuka Langley',
+    pilotJa: '惣流・アスカ・ラングレー',
+    status: 'engaged',
+    syncRate: 78.4,
+    powerRemaining: 147, // 2:27
+    damage: 23,
+    atFieldStrength: 72.1,
+    weapons: ['Sonic Glaive', 'Spike Launcher'],
+    armor: 'Type-B Equipment',
+    notes: 'Under heavy fire. Left arm armor compromised.',
   },
 ];
 
-export const recentResults: TestResult[] = [
-  { id: 'r1', name: 'GET /users returns 200', suite: 'API', status: 'pass', duration: '120ms', timestamp: '08:30:12' },
-  { id: 'r2', name: 'Login form validation', suite: 'UI', status: 'pass', duration: '1.4s', timestamp: '08:30:08' },
-  { id: 'r3', name: 'POST /orders timeout', suite: 'API', status: 'fail', duration: '5.0s', timestamp: '08:29:55' },
-  { id: 'r4', name: 'Dashboard renders', suite: 'UI', status: 'pass', duration: '890ms', timestamp: '08:29:50' },
-  { id: 'r5', name: 'DB migration check', suite: 'Integration', status: 'fail', duration: '3.2s', timestamp: '08:29:42' },
-  { id: 'r6', name: 'Auth token refresh', suite: 'API', status: 'pass', duration: '210ms', timestamp: '08:29:38' },
-  { id: 'r7', name: 'Sidebar navigation', suite: 'UI', status: 'skip', duration: '—', timestamp: '08:29:30' },
-  { id: 'r8', name: 'Cache invalidation', suite: 'Integration', status: 'pass', duration: '1.8s', timestamp: '08:29:25' },
+export const magiVotes: MagiVote[] = [
+  { system: 'melchior', vote: 'approve', label: 'TACTICAL ASSESSMENT', labelJa: '戦術評価', confidence: 94.7 },
+  { system: 'balthasar', vote: 'approve', label: 'THREAT ANALYSIS', labelJa: '脅威分析', confidence: 91.2 },
+  { system: 'caspar', vote: 'deny', label: 'RISK CALCULATION', labelJa: 'リスク計算', confidence: 67.8 },
 ];
 
-export const flakyTests: FlakyTest[] = [
-  { id: 'f1', name: 'WebSocket reconnect', suite: 'Integration', flakyRate: 23, lastFlake: '08:15:00' },
-  { id: 'f2', name: 'File upload race', suite: 'API', flakyRate: 15, lastFlake: '07:45:00' },
-  { id: 'f3', name: 'Animation timing', suite: 'UI', flakyRate: 11, lastFlake: '08:22:00' },
+export const systemStatuses: SystemStatus[] = [
+  { id: 'comms', name: 'COMMS', operational: true },
+  { id: 'weapons', name: 'WEAPONS', operational: true },
+  { id: 'umbilical', name: 'UMBILICAL', operational: false },
+  { id: 'shields', name: 'SHIELDS', operational: true },
+  { id: 'ejection', name: 'EJECTION', operational: true },
+  { id: 's2-engine', name: 'S² ENGINE', operational: true },
 ];
 
-export const activityLog: ActivityEntry[] = [
-  { id: 'a01', type: 'run_complete', message: 'Test run #1247 completed — 298/325 passed', timestamp: '08:30:15', severity: 'info' },
-  { id: 'a02', type: 'test_failed', message: 'FAIL  POST /orders timeout — exceeded 5s threshold', timestamp: '08:29:55', severity: 'warning' },
-  { id: 'a03', type: 'test_failed', message: 'FAIL  DB migration check — schema mismatch on users table', timestamp: '08:29:42', severity: 'critical' },
-  { id: 'a04', type: 'flaky_detected', message: 'FLAKY WebSocket reconnect — 23% failure rate over 50 runs', timestamp: '08:15:00', severity: 'caution' },
-  { id: 'a05', type: 'run_complete', message: 'Test run #1246 completed — 301/325 passed', timestamp: '08:10:22', severity: 'info' },
-  { id: 'a06', type: 'test_failed', message: 'FAIL  File upload race condition — intermittent 500', timestamp: '08:05:11', severity: 'warning' },
-  { id: 'a07', type: 'suite_added', message: 'NEW   PATCH /users/:id added to API suite', timestamp: '07:00:00', severity: 'info' },
-  { id: 'a08', type: 'config_changed', message: 'CFG   Timeout threshold updated: 3s → 5s for integration', timestamp: '06:45:00', severity: 'info' },
-  { id: 'a09', type: 'run_complete', message: 'Test run #1245 completed — 305/325 passed', timestamp: '06:30:00', severity: 'info' },
-  { id: 'a10', type: 'flaky_detected', message: 'FLAKY File upload race — 15% failure rate over 40 runs', timestamp: '05:45:00', severity: 'caution' },
-  { id: 'a11', type: 'run_complete', message: 'Test run #1244 completed — 310/325 passed', timestamp: '04:30:00', severity: 'info' },
-  { id: 'a12', type: 'test_failed', message: 'FAIL  Animation timing assert — off by 32ms', timestamp: '04:22:18', severity: 'warning' },
-  { id: 'a13', type: 'config_changed', message: 'CFG   Parallel workers increased: 4 → 8', timestamp: '03:00:00', severity: 'info' },
-  { id: 'a14', type: 'run_complete', message: 'Test run #1243 completed — 312/325 passed', timestamp: '02:30:00', severity: 'info' },
-  { id: 'a15', type: 'suite_added', message: 'NEW   WebSocket reconnect stress test added', timestamp: '01:15:00', severity: 'info' },
-  { id: 'a16', type: 'run_complete', message: 'Test run #1242 completed — 308/325 passed', timestamp: '00:30:00', severity: 'info' },
+export const operationLog: OperationLogEntry[] = [
+  { id: 'op01', type: 'alert', message: 'PATTERN BLUE confirmed — Angel classification: 7th', timestamp: '13:42:08', severity: 'critical' },
+  { id: 'op02', type: 'deploy', message: 'EVA-01 launched — Pilot Ikari engaged', timestamp: '13:42:15', severity: 'info' },
+  { id: 'op03', type: 'deploy', message: 'EVA-02 launched — Pilot Langley engaged', timestamp: '13:42:18', severity: 'info' },
+  { id: 'op04', type: 'magi', message: 'MAGI operation vote: APPROVED (2-1) — CASPAR dissent logged', timestamp: '13:42:22', severity: 'caution' },
+  { id: 'op05', type: 'system', message: 'Umbilical cable severed — EVA-02 on internal power', timestamp: '13:43:01', severity: 'warning' },
+  { id: 'op06', type: 'comms', message: 'AT Field interference detected — adjusting comms frequency', timestamp: '13:43:15', severity: 'caution' },
+  { id: 'op07', type: 'damage', message: 'EVA-02 hit — left arm armor compromised (23% total damage)', timestamp: '13:43:42', severity: 'warning' },
+  { id: 'op08', type: 'system', message: 'AT Field neutralization at 72.1% — Angel barrier weakening', timestamp: '13:44:01', severity: 'info' },
+  { id: 'op09', type: 'comms', message: 'Pilot Langley sync rate dropping — 78.4% and falling', timestamp: '13:44:18', severity: 'caution' },
+  { id: 'op10', type: 'system', message: 'EVA-00 on standby — deployment authorized if needed', timestamp: '13:44:30', severity: 'info' },
+  { id: 'op11', type: 'alert', message: 'Angel accelerating — distance closing: 2.4km', timestamp: '13:44:45', severity: 'warning' },
+  { id: 'op12', type: 'magi', message: 'CASPAR recommends tactical retreat — overruled by command', timestamp: '13:45:02', severity: 'caution' },
+  { id: 'op13', type: 'damage', message: 'EVA-01 minor damage — 7% — pilot unharmed', timestamp: '13:45:15', severity: 'info' },
+  { id: 'op14', type: 'system', message: 'Power alert: EVA-02 below 3 minutes internal power', timestamp: '13:45:30', severity: 'warning' },
+  { id: 'op15', type: 'comms', message: 'Command: All units maintain formation. EVA-00 prepare for launch.', timestamp: '13:45:45', severity: 'info' },
+  { id: 'op16', type: 'alert', message: 'Angel core detected — coordinates transmitted to all units', timestamp: '13:46:00', severity: 'critical' },
 ];
 
 // Aggregate metrics
 export const metrics = {
-  totalTests: 325,
-  passRate: 91.7,
-  avgDuration: '4m 23s',
-  flakyCount: 3,
-  totalRuns: 1247,
-  failedTests: 19,
-  passTarget: 95,
-  totalTarget: 400,
-  durationTarget: '3m 00s',
+  atFieldStrength: 87.3,
+  avgSyncRate: 90.6,
+  angelDistance: 2.4,
+  totalDamage: 23,
+  operationTime: '00:03:52',
+  condition: 'RED' as const,
 };

@@ -1,5 +1,5 @@
 import { HudDrawer, HazardStripes } from 'eva-ui';
-import { activityLog } from '../data/mockData';
+import { operationLog } from '../data/mockData';
 
 interface ActivityDrawerProps {
   open: boolean;
@@ -14,11 +14,12 @@ const severityColor = {
 } as const;
 
 const typeIcon = {
-  run_complete: '▶',
-  test_failed: '✕',
-  suite_added: '+',
-  flaky_detected: '⚡',
-  config_changed: '⚙',
+  deploy: '▶',
+  alert: '⚠',
+  damage: '✕',
+  system: '⚙',
+  comms: '◆',
+  magi: '◈',
 } as const;
 
 export function ActivityDrawer({ open, onClose }: ActivityDrawerProps) {
@@ -26,16 +27,16 @@ export function ActivityDrawer({ open, onClose }: ActivityDrawerProps) {
     <HudDrawer open={open} onClose={onClose} position="right" size={380}>
       <div style={{ padding: '1.5rem 1rem' }}>
         <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.25rem' }}>
-          Recent Activity
+          Operation Log
         </div>
         <div style={{ fontSize: '0.6rem', opacity: 0.4, marginBottom: '1rem' }}>
-          最近のアクティビティ
+          作戦記録
         </div>
 
         <HazardStripes height={3} animated />
 
         <div style={{ marginTop: '1rem' }}>
-          {activityLog.map((entry) => (
+          {operationLog.map((entry) => (
             <div
               key={entry.id}
               style={{
